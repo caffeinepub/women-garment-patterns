@@ -89,10 +89,61 @@ export class ExternalBlob {
         return this;
     }
 }
+export interface MadeToOrder {
+    id: bigint;
+    customerName: string;
+    deliveryDeadline: string;
+    createdAt: bigint;
+    garmentName: string;
+    measurements: Measurements;
+    productionStatus: ProductionStatus;
+    notes: string;
+    priority: OrderPriority;
+}
 export interface GarmentType {
     patternPieces: Array<PatternPiece>;
     name: string;
     description: string;
+}
+export interface D2CProduct {
+    id: bigint;
+    inStock: boolean;
+    fabricType: string;
+    name: string;
+    createdAt: bigint;
+    description: string;
+    sizesAvailable: Array<string>;
+    price: number;
+}
+export interface Customer {
+    id: string;
+    hip: number;
+    bust: number;
+    name: string;
+    createdAt: bigint;
+    length: number;
+    phone: string;
+    waist: number;
+}
+export interface SubscriptionPlan {
+    id: bigint;
+    name: string;
+    createdAt: bigint;
+    description: string;
+    isActive: boolean;
+    billingCycle: BillingCycle;
+    price: number;
+    includedServices: Array<string>;
+}
+export interface Subscriber {
+    id: bigint;
+    status: SubscriberStatus;
+    planId: bigint;
+    name: string;
+    createdAt: bigint;
+    phone: string;
+    planName: string;
+    startDate: string;
 }
 export interface PatternPiece {
     name: string;
@@ -117,36 +168,70 @@ export interface Measurements {
     length: number;
     waist: number;
 }
-export interface Customer {
-    id: string;
-    hip: number;
-    bust: number;
-    name: string;
-    createdAt: bigint;
-    length: number;
-    phone: string;
-    waist: number;
+export enum BillingCycle {
+    Quarterly = "Quarterly",
+    Monthly = "Monthly",
+    Yearly = "Yearly"
+}
+export enum OrderPriority {
+    Low = "Low",
+    High = "High",
+    Normal = "Normal"
+}
+export enum ProductionStatus {
+    Queued = "Queued",
+    Stitching = "Stitching",
+    QualityCheck = "QualityCheck",
+    Ready = "Ready",
+    Cutting = "Cutting"
+}
+export enum SubscriberStatus {
+    Paused = "Paused",
+    Active = "Active",
+    Cancelled = "Cancelled"
 }
 export interface backendInterface {
     addCustomer(name: string, phone: string, bust: number, waist: number, hip: number, length: number): Promise<string>;
     calculatePattern(garmentName: string, measurements: Measurements): Promise<Array<[PatternPiece, Measurements]>>;
+    createD2CProduct(name: string, description: string, price: number, fabricType: string, sizesAvailable: Array<string>, inStock: boolean): Promise<bigint>;
     createGarment(name: string, description: string, patternPieces: Array<PatternPiece>): Promise<void>;
+    createMadeToOrder(customerName: string, garmentName: string, measurements: Measurements, priority: OrderPriority, deliveryDeadline: string, notes: string): Promise<bigint>;
     createOrder(customerName: string, garmentName: string, bust: number, waist: number, hip: number, length: number, notes: string): Promise<string>;
+    createSubscriber(name: string, phone: string, planId: bigint, planName: string, startDate: string): Promise<bigint>;
+    createSubscriptionPlan(name: string, description: string, price: number, billingCycle: BillingCycle, includedServices: Array<string>): Promise<bigint>;
     deleteCustomer(id: string): Promise<boolean>;
+    deleteD2CProduct(id: bigint): Promise<boolean>;
     deleteGarment(name: string): Promise<void>;
+    deleteMadeToOrder(id: bigint): Promise<boolean>;
     deleteOrder(id: string): Promise<boolean>;
+    deleteSubscriber(id: bigint): Promise<boolean>;
+    deleteSubscriptionPlan(id: bigint): Promise<boolean>;
     getCustomer(id: string): Promise<Customer | null>;
+    getD2CProduct(id: bigint): Promise<D2CProduct | null>;
     getGarment(name: string): Promise<GarmentType>;
+    getMadeToOrder(id: bigint): Promise<MadeToOrder | null>;
     getOrder(id: string): Promise<Order | null>;
+    getSubscriber(id: bigint): Promise<Subscriber | null>;
+    getSubscriptionPlan(id: bigint): Promise<SubscriptionPlan | null>;
     listCustomers(): Promise<Array<Customer>>;
+    listD2CProducts(): Promise<Array<D2CProduct>>;
     listGarments(): Promise<Array<GarmentType>>;
+    listMadeToOrder(): Promise<Array<MadeToOrder>>;
     listOrders(): Promise<Array<Order>>;
     listOrdersByStatus(status: string): Promise<Array<Order>>;
+    listSubscribers(): Promise<Array<Subscriber>>;
+    listSubscriptionPlans(): Promise<Array<SubscriptionPlan>>;
     updateCustomer(id: string, name: string, phone: string, bust: number, waist: number, hip: number, length: number): Promise<boolean>;
+    updateD2CProduct(id: bigint, name: string, description: string, price: number, fabricType: string, sizesAvailable: Array<string>, inStock: boolean): Promise<boolean>;
     updateGarment(name: string, newDescription: string, newPatternPieces: Array<PatternPiece>): Promise<void>;
+    updateMadeToOrder(id: bigint, customerName: string, garmentName: string, measurements: Measurements, priority: OrderPriority, deliveryDeadline: string, notes: string): Promise<boolean>;
     updateOrderStatus(id: string, status: string): Promise<boolean>;
+    updateProductionStatus(id: bigint, newStatus: ProductionStatus): Promise<boolean>;
+    updateSubscriber(id: bigint, name: string, phone: string, planId: bigint, planName: string, startDate: string, status: SubscriberStatus): Promise<boolean>;
+    updateSubscriberStatus(id: bigint, newStatus: SubscriberStatus): Promise<boolean>;
+    updateSubscriptionPlan(id: bigint, name: string, description: string, price: number, billingCycle: BillingCycle, includedServices: Array<string>, isActive: boolean): Promise<boolean>;
 }
-import type { Customer as _Customer, Order as _Order } from "./declarations/backend.did.d.ts";
+import type { BillingCycle as _BillingCycle, Customer as _Customer, D2CProduct as _D2CProduct, MadeToOrder as _MadeToOrder, Measurements as _Measurements, Order as _Order, OrderPriority as _OrderPriority, ProductionStatus as _ProductionStatus, Subscriber as _Subscriber, SubscriberStatus as _SubscriberStatus, SubscriptionPlan as _SubscriptionPlan } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async addCustomer(arg0: string, arg1: string, arg2: number, arg3: number, arg4: number, arg5: number): Promise<string> {
@@ -177,6 +262,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async createD2CProduct(arg0: string, arg1: string, arg2: number, arg3: string, arg4: Array<string>, arg5: boolean): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createD2CProduct(arg0, arg1, arg2, arg3, arg4, arg5);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createD2CProduct(arg0, arg1, arg2, arg3, arg4, arg5);
+            return result;
+        }
+    }
     async createGarment(arg0: string, arg1: string, arg2: Array<PatternPiece>): Promise<void> {
         if (this.processError) {
             try {
@@ -188,6 +287,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.createGarment(arg0, arg1, arg2);
+            return result;
+        }
+    }
+    async createMadeToOrder(arg0: string, arg1: string, arg2: Measurements, arg3: OrderPriority, arg4: string, arg5: string): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createMadeToOrder(arg0, arg1, arg2, to_candid_OrderPriority_n1(this._uploadFile, this._downloadFile, arg3), arg4, arg5);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createMadeToOrder(arg0, arg1, arg2, to_candid_OrderPriority_n1(this._uploadFile, this._downloadFile, arg3), arg4, arg5);
             return result;
         }
     }
@@ -205,6 +318,34 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async createSubscriber(arg0: string, arg1: string, arg2: bigint, arg3: string, arg4: string): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createSubscriber(arg0, arg1, arg2, arg3, arg4);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createSubscriber(arg0, arg1, arg2, arg3, arg4);
+            return result;
+        }
+    }
+    async createSubscriptionPlan(arg0: string, arg1: string, arg2: number, arg3: BillingCycle, arg4: Array<string>): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createSubscriptionPlan(arg0, arg1, arg2, to_candid_BillingCycle_n3(this._uploadFile, this._downloadFile, arg3), arg4);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createSubscriptionPlan(arg0, arg1, arg2, to_candid_BillingCycle_n3(this._uploadFile, this._downloadFile, arg3), arg4);
+            return result;
+        }
+    }
     async deleteCustomer(arg0: string): Promise<boolean> {
         if (this.processError) {
             try {
@@ -216,6 +357,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.deleteCustomer(arg0);
+            return result;
+        }
+    }
+    async deleteD2CProduct(arg0: bigint): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteD2CProduct(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteD2CProduct(arg0);
             return result;
         }
     }
@@ -233,6 +388,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async deleteMadeToOrder(arg0: bigint): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteMadeToOrder(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteMadeToOrder(arg0);
+            return result;
+        }
+    }
     async deleteOrder(arg0: string): Promise<boolean> {
         if (this.processError) {
             try {
@@ -247,18 +416,60 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async deleteSubscriber(arg0: bigint): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteSubscriber(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteSubscriber(arg0);
+            return result;
+        }
+    }
+    async deleteSubscriptionPlan(arg0: bigint): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteSubscriptionPlan(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteSubscriptionPlan(arg0);
+            return result;
+        }
+    }
     async getCustomer(arg0: string): Promise<Customer | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getCustomer(arg0);
-                return from_candid_opt_n1(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n5(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getCustomer(arg0);
-            return from_candid_opt_n1(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n5(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getD2CProduct(arg0: bigint): Promise<D2CProduct | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getD2CProduct(arg0);
+                return from_candid_opt_n6(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getD2CProduct(arg0);
+            return from_candid_opt_n6(this._uploadFile, this._downloadFile, result);
         }
     }
     async getGarment(arg0: string): Promise<GarmentType> {
@@ -275,18 +486,60 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getMadeToOrder(arg0: bigint): Promise<MadeToOrder | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getMadeToOrder(arg0);
+                return from_candid_opt_n7(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getMadeToOrder(arg0);
+            return from_candid_opt_n7(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async getOrder(arg0: string): Promise<Order | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getOrder(arg0);
-                return from_candid_opt_n2(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n14(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getOrder(arg0);
-            return from_candid_opt_n2(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n14(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getSubscriber(arg0: bigint): Promise<Subscriber | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getSubscriber(arg0);
+                return from_candid_opt_n15(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getSubscriber(arg0);
+            return from_candid_opt_n15(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getSubscriptionPlan(arg0: bigint): Promise<SubscriptionPlan | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getSubscriptionPlan(arg0);
+                return from_candid_opt_n20(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getSubscriptionPlan(arg0);
+            return from_candid_opt_n20(this._uploadFile, this._downloadFile, result);
         }
     }
     async listCustomers(): Promise<Array<Customer>> {
@@ -303,6 +556,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async listD2CProducts(): Promise<Array<D2CProduct>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.listD2CProducts();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.listD2CProducts();
+            return result;
+        }
+    }
     async listGarments(): Promise<Array<GarmentType>> {
         if (this.processError) {
             try {
@@ -315,6 +582,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.listGarments();
             return result;
+        }
+    }
+    async listMadeToOrder(): Promise<Array<MadeToOrder>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.listMadeToOrder();
+                return from_candid_vec_n25(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.listMadeToOrder();
+            return from_candid_vec_n25(this._uploadFile, this._downloadFile, result);
         }
     }
     async listOrders(): Promise<Array<Order>> {
@@ -345,6 +626,34 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async listSubscribers(): Promise<Array<Subscriber>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.listSubscribers();
+                return from_candid_vec_n26(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.listSubscribers();
+            return from_candid_vec_n26(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async listSubscriptionPlans(): Promise<Array<SubscriptionPlan>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.listSubscriptionPlans();
+                return from_candid_vec_n27(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.listSubscriptionPlans();
+            return from_candid_vec_n27(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async updateCustomer(arg0: string, arg1: string, arg2: string, arg3: number, arg4: number, arg5: number, arg6: number): Promise<boolean> {
         if (this.processError) {
             try {
@@ -356,6 +665,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.updateCustomer(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+            return result;
+        }
+    }
+    async updateD2CProduct(arg0: bigint, arg1: string, arg2: string, arg3: number, arg4: string, arg5: Array<string>, arg6: boolean): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateD2CProduct(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateD2CProduct(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
             return result;
         }
     }
@@ -373,6 +696,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async updateMadeToOrder(arg0: bigint, arg1: string, arg2: string, arg3: Measurements, arg4: OrderPriority, arg5: string, arg6: string): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateMadeToOrder(arg0, arg1, arg2, arg3, to_candid_OrderPriority_n1(this._uploadFile, this._downloadFile, arg4), arg5, arg6);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateMadeToOrder(arg0, arg1, arg2, arg3, to_candid_OrderPriority_n1(this._uploadFile, this._downloadFile, arg4), arg5, arg6);
+            return result;
+        }
+    }
     async updateOrderStatus(arg0: string, arg1: string): Promise<boolean> {
         if (this.processError) {
             try {
@@ -387,12 +724,323 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async updateProductionStatus(arg0: bigint, arg1: ProductionStatus): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateProductionStatus(arg0, to_candid_ProductionStatus_n28(this._uploadFile, this._downloadFile, arg1));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateProductionStatus(arg0, to_candid_ProductionStatus_n28(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
+    async updateSubscriber(arg0: bigint, arg1: string, arg2: string, arg3: bigint, arg4: string, arg5: string, arg6: SubscriberStatus): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateSubscriber(arg0, arg1, arg2, arg3, arg4, arg5, to_candid_SubscriberStatus_n30(this._uploadFile, this._downloadFile, arg6));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateSubscriber(arg0, arg1, arg2, arg3, arg4, arg5, to_candid_SubscriberStatus_n30(this._uploadFile, this._downloadFile, arg6));
+            return result;
+        }
+    }
+    async updateSubscriberStatus(arg0: bigint, arg1: SubscriberStatus): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateSubscriberStatus(arg0, to_candid_SubscriberStatus_n30(this._uploadFile, this._downloadFile, arg1));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateSubscriberStatus(arg0, to_candid_SubscriberStatus_n30(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
+    async updateSubscriptionPlan(arg0: bigint, arg1: string, arg2: string, arg3: number, arg4: BillingCycle, arg5: Array<string>, arg6: boolean): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateSubscriptionPlan(arg0, arg1, arg2, arg3, to_candid_BillingCycle_n3(this._uploadFile, this._downloadFile, arg4), arg5, arg6);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateSubscriptionPlan(arg0, arg1, arg2, arg3, to_candid_BillingCycle_n3(this._uploadFile, this._downloadFile, arg4), arg5, arg6);
+            return result;
+        }
+    }
 }
-function from_candid_opt_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Customer]): Customer | null {
+function from_candid_BillingCycle_n23(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _BillingCycle): BillingCycle {
+    return from_candid_variant_n24(_uploadFile, _downloadFile, value);
+}
+function from_candid_MadeToOrder_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _MadeToOrder): MadeToOrder {
+    return from_candid_record_n9(_uploadFile, _downloadFile, value);
+}
+function from_candid_OrderPriority_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _OrderPriority): OrderPriority {
+    return from_candid_variant_n13(_uploadFile, _downloadFile, value);
+}
+function from_candid_ProductionStatus_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ProductionStatus): ProductionStatus {
+    return from_candid_variant_n11(_uploadFile, _downloadFile, value);
+}
+function from_candid_SubscriberStatus_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _SubscriberStatus): SubscriberStatus {
+    return from_candid_variant_n19(_uploadFile, _downloadFile, value);
+}
+function from_candid_Subscriber_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Subscriber): Subscriber {
+    return from_candid_record_n17(_uploadFile, _downloadFile, value);
+}
+function from_candid_SubscriptionPlan_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _SubscriptionPlan): SubscriptionPlan {
+    return from_candid_record_n22(_uploadFile, _downloadFile, value);
+}
+function from_candid_opt_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Order]): Order | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Order]): Order | null {
+function from_candid_opt_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Subscriber]): Subscriber | null {
+    return value.length === 0 ? null : from_candid_Subscriber_n16(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_opt_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_SubscriptionPlan]): SubscriptionPlan | null {
+    return value.length === 0 ? null : from_candid_SubscriptionPlan_n21(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_opt_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Customer]): Customer | null {
     return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_D2CProduct]): D2CProduct | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_MadeToOrder]): MadeToOrder | null {
+    return value.length === 0 ? null : from_candid_MadeToOrder_n8(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_record_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: bigint;
+    status: _SubscriberStatus;
+    planId: bigint;
+    name: string;
+    createdAt: bigint;
+    phone: string;
+    planName: string;
+    startDate: string;
+}): {
+    id: bigint;
+    status: SubscriberStatus;
+    planId: bigint;
+    name: string;
+    createdAt: bigint;
+    phone: string;
+    planName: string;
+    startDate: string;
+} {
+    return {
+        id: value.id,
+        status: from_candid_SubscriberStatus_n18(_uploadFile, _downloadFile, value.status),
+        planId: value.planId,
+        name: value.name,
+        createdAt: value.createdAt,
+        phone: value.phone,
+        planName: value.planName,
+        startDate: value.startDate
+    };
+}
+function from_candid_record_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: bigint;
+    name: string;
+    createdAt: bigint;
+    description: string;
+    isActive: boolean;
+    billingCycle: _BillingCycle;
+    price: number;
+    includedServices: Array<string>;
+}): {
+    id: bigint;
+    name: string;
+    createdAt: bigint;
+    description: string;
+    isActive: boolean;
+    billingCycle: BillingCycle;
+    price: number;
+    includedServices: Array<string>;
+} {
+    return {
+        id: value.id,
+        name: value.name,
+        createdAt: value.createdAt,
+        description: value.description,
+        isActive: value.isActive,
+        billingCycle: from_candid_BillingCycle_n23(_uploadFile, _downloadFile, value.billingCycle),
+        price: value.price,
+        includedServices: value.includedServices
+    };
+}
+function from_candid_record_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: bigint;
+    customerName: string;
+    deliveryDeadline: string;
+    createdAt: bigint;
+    garmentName: string;
+    measurements: _Measurements;
+    productionStatus: _ProductionStatus;
+    notes: string;
+    priority: _OrderPriority;
+}): {
+    id: bigint;
+    customerName: string;
+    deliveryDeadline: string;
+    createdAt: bigint;
+    garmentName: string;
+    measurements: Measurements;
+    productionStatus: ProductionStatus;
+    notes: string;
+    priority: OrderPriority;
+} {
+    return {
+        id: value.id,
+        customerName: value.customerName,
+        deliveryDeadline: value.deliveryDeadline,
+        createdAt: value.createdAt,
+        garmentName: value.garmentName,
+        measurements: value.measurements,
+        productionStatus: from_candid_ProductionStatus_n10(_uploadFile, _downloadFile, value.productionStatus),
+        notes: value.notes,
+        priority: from_candid_OrderPriority_n12(_uploadFile, _downloadFile, value.priority)
+    };
+}
+function from_candid_variant_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    Queued: null;
+} | {
+    Stitching: null;
+} | {
+    QualityCheck: null;
+} | {
+    Ready: null;
+} | {
+    Cutting: null;
+}): ProductionStatus {
+    return "Queued" in value ? ProductionStatus.Queued : "Stitching" in value ? ProductionStatus.Stitching : "QualityCheck" in value ? ProductionStatus.QualityCheck : "Ready" in value ? ProductionStatus.Ready : "Cutting" in value ? ProductionStatus.Cutting : value;
+}
+function from_candid_variant_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    Low: null;
+} | {
+    High: null;
+} | {
+    Normal: null;
+}): OrderPriority {
+    return "Low" in value ? OrderPriority.Low : "High" in value ? OrderPriority.High : "Normal" in value ? OrderPriority.Normal : value;
+}
+function from_candid_variant_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    Paused: null;
+} | {
+    Active: null;
+} | {
+    Cancelled: null;
+}): SubscriberStatus {
+    return "Paused" in value ? SubscriberStatus.Paused : "Active" in value ? SubscriberStatus.Active : "Cancelled" in value ? SubscriberStatus.Cancelled : value;
+}
+function from_candid_variant_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    Quarterly: null;
+} | {
+    Monthly: null;
+} | {
+    Yearly: null;
+}): BillingCycle {
+    return "Quarterly" in value ? BillingCycle.Quarterly : "Monthly" in value ? BillingCycle.Monthly : "Yearly" in value ? BillingCycle.Yearly : value;
+}
+function from_candid_vec_n25(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_MadeToOrder>): Array<MadeToOrder> {
+    return value.map((x)=>from_candid_MadeToOrder_n8(_uploadFile, _downloadFile, x));
+}
+function from_candid_vec_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Subscriber>): Array<Subscriber> {
+    return value.map((x)=>from_candid_Subscriber_n16(_uploadFile, _downloadFile, x));
+}
+function from_candid_vec_n27(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_SubscriptionPlan>): Array<SubscriptionPlan> {
+    return value.map((x)=>from_candid_SubscriptionPlan_n21(_uploadFile, _downloadFile, x));
+}
+function to_candid_BillingCycle_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: BillingCycle): _BillingCycle {
+    return to_candid_variant_n4(_uploadFile, _downloadFile, value);
+}
+function to_candid_OrderPriority_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: OrderPriority): _OrderPriority {
+    return to_candid_variant_n2(_uploadFile, _downloadFile, value);
+}
+function to_candid_ProductionStatus_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ProductionStatus): _ProductionStatus {
+    return to_candid_variant_n29(_uploadFile, _downloadFile, value);
+}
+function to_candid_SubscriberStatus_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: SubscriberStatus): _SubscriberStatus {
+    return to_candid_variant_n31(_uploadFile, _downloadFile, value);
+}
+function to_candid_variant_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: OrderPriority): {
+    Low: null;
+} | {
+    High: null;
+} | {
+    Normal: null;
+} {
+    return value == OrderPriority.Low ? {
+        Low: null
+    } : value == OrderPriority.High ? {
+        High: null
+    } : value == OrderPriority.Normal ? {
+        Normal: null
+    } : value;
+}
+function to_candid_variant_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ProductionStatus): {
+    Queued: null;
+} | {
+    Stitching: null;
+} | {
+    QualityCheck: null;
+} | {
+    Ready: null;
+} | {
+    Cutting: null;
+} {
+    return value == ProductionStatus.Queued ? {
+        Queued: null
+    } : value == ProductionStatus.Stitching ? {
+        Stitching: null
+    } : value == ProductionStatus.QualityCheck ? {
+        QualityCheck: null
+    } : value == ProductionStatus.Ready ? {
+        Ready: null
+    } : value == ProductionStatus.Cutting ? {
+        Cutting: null
+    } : value;
+}
+function to_candid_variant_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: SubscriberStatus): {
+    Paused: null;
+} | {
+    Active: null;
+} | {
+    Cancelled: null;
+} {
+    return value == SubscriberStatus.Paused ? {
+        Paused: null
+    } : value == SubscriberStatus.Active ? {
+        Active: null
+    } : value == SubscriberStatus.Cancelled ? {
+        Cancelled: null
+    } : value;
+}
+function to_candid_variant_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: BillingCycle): {
+    Quarterly: null;
+} | {
+    Monthly: null;
+} | {
+    Yearly: null;
+} {
+    return value == BillingCycle.Quarterly ? {
+        Quarterly: null
+    } : value == BillingCycle.Monthly ? {
+        Monthly: null
+    } : value == BillingCycle.Yearly ? {
+        Yearly: null
+    } : value;
 }
 export interface CreateActorOptions {
     agent?: Agent;

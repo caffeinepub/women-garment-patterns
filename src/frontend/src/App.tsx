@@ -3,16 +3,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Calculator,
   ClipboardList,
+  Factory,
+  RefreshCw,
   Scissors,
   Settings,
+  ShoppingBag,
   Users,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { AdminPanel } from "./components/AdminPanel";
 import { CostCalculator } from "./components/CostCalculator";
 import { CustomerManager } from "./components/CustomerManager";
+import { D2CCatalog } from "./components/D2CCatalog";
+import { MadeToOrderQueue } from "./components/MadeToOrderQueue";
 import { OrderManager } from "./components/OrderManager";
 import { PatternGenerator } from "./components/PatternGenerator";
+import { SubscriptionManager } from "./components/SubscriptionManager";
 
 const THREAD_BARS = [
   { id: "bar-0", h: 13 },
@@ -39,7 +45,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b border-border/60 bg-card/80 backdrop-blur-sm sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <motion.div
             initial={{ opacity: 0, x: -12 }}
             animate={{ opacity: 1, x: 0 }}
@@ -72,7 +78,7 @@ export default function App() {
       </header>
 
       <div className="bg-secondary/40 border-b border-border/40 px-4 sm:px-6 py-3">
-        <div className="max-w-6xl mx-auto flex flex-wrap items-center gap-x-6 gap-y-1">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center gap-x-6 gap-y-1">
           {HERO_GARMENTS.map((g, i) => (
             <motion.span
               key={g.label}
@@ -89,7 +95,7 @@ export default function App() {
         </div>
       </div>
 
-      <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-8">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-8">
         <Tabs defaultValue="generator" className="space-y-8">
           <TabsList className="h-auto bg-secondary/50 border border-border/60 rounded-xl p-1 flex flex-wrap gap-1">
             <TabsTrigger
@@ -125,6 +131,30 @@ export default function App() {
               Customers
             </TabsTrigger>
             <TabsTrigger
+              value="mto"
+              data-ocid="nav.mto.tab"
+              className="gap-2 rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-xs"
+            >
+              <Factory className="w-4 h-4" />
+              <span className="hidden sm:inline">Made-to-</span>Order
+            </TabsTrigger>
+            <TabsTrigger
+              value="catalog"
+              data-ocid="nav.catalog.tab"
+              className="gap-2 rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-xs"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              <span className="hidden sm:inline">D2C </span>Catalog
+            </TabsTrigger>
+            <TabsTrigger
+              value="subscriptions"
+              data-ocid="nav.subscriptions.tab"
+              className="gap-2 rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-xs"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Subscriptions
+            </TabsTrigger>
+            <TabsTrigger
               value="admin"
               data-ocid="nav.admin.tab"
               className="gap-2 rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-xs"
@@ -150,6 +180,18 @@ export default function App() {
             <CustomerManager />
           </TabsContent>
 
+          <TabsContent value="mto" className="mt-0 animate-fade-in">
+            <MadeToOrderQueue />
+          </TabsContent>
+
+          <TabsContent value="catalog" className="mt-0 animate-fade-in">
+            <D2CCatalog />
+          </TabsContent>
+
+          <TabsContent value="subscriptions" className="mt-0 animate-fade-in">
+            <SubscriptionManager />
+          </TabsContent>
+
           <TabsContent value="admin" className="mt-0 animate-fade-in">
             <AdminPanel />
           </TabsContent>
@@ -157,7 +199,7 @@ export default function App() {
       </main>
 
       <footer className="border-t border-border/40 bg-secondary/20 px-4 sm:px-6 py-6 mt-8">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted-foreground">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <Scissors className="w-3.5 h-3.5" />
             <span>Women&rsquo;s Garment Cutting Patterns</span>

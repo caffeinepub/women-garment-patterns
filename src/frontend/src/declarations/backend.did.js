@@ -19,6 +19,16 @@ export const PatternPiece = IDL.Record({
   'instructions' : IDL.Text,
   'cutOnFold' : IDL.Bool,
 });
+export const OrderPriority = IDL.Variant({
+  'Low' : IDL.Null,
+  'High' : IDL.Null,
+  'Normal' : IDL.Null,
+});
+export const BillingCycle = IDL.Variant({
+  'Quarterly' : IDL.Null,
+  'Monthly' : IDL.Null,
+  'Yearly' : IDL.Null,
+});
 export const Customer = IDL.Record({
   'id' : IDL.Text,
   'hip' : IDL.Float64,
@@ -29,10 +39,38 @@ export const Customer = IDL.Record({
   'phone' : IDL.Text,
   'waist' : IDL.Float64,
 });
+export const D2CProduct = IDL.Record({
+  'id' : IDL.Nat,
+  'inStock' : IDL.Bool,
+  'fabricType' : IDL.Text,
+  'name' : IDL.Text,
+  'createdAt' : IDL.Int,
+  'description' : IDL.Text,
+  'sizesAvailable' : IDL.Vec(IDL.Text),
+  'price' : IDL.Float64,
+});
 export const GarmentType = IDL.Record({
   'patternPieces' : IDL.Vec(PatternPiece),
   'name' : IDL.Text,
   'description' : IDL.Text,
+});
+export const ProductionStatus = IDL.Variant({
+  'Queued' : IDL.Null,
+  'Stitching' : IDL.Null,
+  'QualityCheck' : IDL.Null,
+  'Ready' : IDL.Null,
+  'Cutting' : IDL.Null,
+});
+export const MadeToOrder = IDL.Record({
+  'id' : IDL.Nat,
+  'customerName' : IDL.Text,
+  'deliveryDeadline' : IDL.Text,
+  'createdAt' : IDL.Int,
+  'garmentName' : IDL.Text,
+  'measurements' : Measurements,
+  'productionStatus' : ProductionStatus,
+  'notes' : IDL.Text,
+  'priority' : OrderPriority,
 });
 export const Order = IDL.Record({
   'id' : IDL.Text,
@@ -46,6 +84,31 @@ export const Order = IDL.Record({
   'notes' : IDL.Text,
   'waist' : IDL.Float64,
 });
+export const SubscriberStatus = IDL.Variant({
+  'Paused' : IDL.Null,
+  'Active' : IDL.Null,
+  'Cancelled' : IDL.Null,
+});
+export const Subscriber = IDL.Record({
+  'id' : IDL.Nat,
+  'status' : SubscriberStatus,
+  'planId' : IDL.Nat,
+  'name' : IDL.Text,
+  'createdAt' : IDL.Int,
+  'phone' : IDL.Text,
+  'planName' : IDL.Text,
+  'startDate' : IDL.Text,
+});
+export const SubscriptionPlan = IDL.Record({
+  'id' : IDL.Nat,
+  'name' : IDL.Text,
+  'createdAt' : IDL.Int,
+  'description' : IDL.Text,
+  'isActive' : IDL.Bool,
+  'billingCycle' : BillingCycle,
+  'price' : IDL.Float64,
+  'includedServices' : IDL.Vec(IDL.Text),
+});
 
 export const idlService = IDL.Service({
   'addCustomer' : IDL.Func(
@@ -58,9 +121,19 @@ export const idlService = IDL.Service({
       [IDL.Vec(IDL.Tuple(PatternPiece, Measurements))],
       ['query'],
     ),
+  'createD2CProduct' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Float64, IDL.Text, IDL.Vec(IDL.Text), IDL.Bool],
+      [IDL.Nat],
+      [],
+    ),
   'createGarment' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Vec(PatternPiece)],
       [],
+      [],
+    ),
+  'createMadeToOrder' : IDL.Func(
+      [IDL.Text, IDL.Text, Measurements, OrderPriority, IDL.Text, IDL.Text],
+      [IDL.Nat],
       [],
     ),
   'createOrder' : IDL.Func(
@@ -76,16 +149,46 @@ export const idlService = IDL.Service({
       [IDL.Text],
       [],
     ),
+  'createSubscriber' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Nat, IDL.Text, IDL.Text],
+      [IDL.Nat],
+      [],
+    ),
+  'createSubscriptionPlan' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Float64, BillingCycle, IDL.Vec(IDL.Text)],
+      [IDL.Nat],
+      [],
+    ),
   'deleteCustomer' : IDL.Func([IDL.Text], [IDL.Bool], []),
+  'deleteD2CProduct' : IDL.Func([IDL.Nat], [IDL.Bool], []),
   'deleteGarment' : IDL.Func([IDL.Text], [], []),
+  'deleteMadeToOrder' : IDL.Func([IDL.Nat], [IDL.Bool], []),
   'deleteOrder' : IDL.Func([IDL.Text], [IDL.Bool], []),
+  'deleteSubscriber' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+  'deleteSubscriptionPlan' : IDL.Func([IDL.Nat], [IDL.Bool], []),
   'getCustomer' : IDL.Func([IDL.Text], [IDL.Opt(Customer)], ['query']),
+  'getD2CProduct' : IDL.Func([IDL.Nat], [IDL.Opt(D2CProduct)], ['query']),
   'getGarment' : IDL.Func([IDL.Text], [GarmentType], ['query']),
+  'getMadeToOrder' : IDL.Func([IDL.Nat], [IDL.Opt(MadeToOrder)], ['query']),
   'getOrder' : IDL.Func([IDL.Text], [IDL.Opt(Order)], ['query']),
+  'getSubscriber' : IDL.Func([IDL.Nat], [IDL.Opt(Subscriber)], ['query']),
+  'getSubscriptionPlan' : IDL.Func(
+      [IDL.Nat],
+      [IDL.Opt(SubscriptionPlan)],
+      ['query'],
+    ),
   'listCustomers' : IDL.Func([], [IDL.Vec(Customer)], ['query']),
+  'listD2CProducts' : IDL.Func([], [IDL.Vec(D2CProduct)], ['query']),
   'listGarments' : IDL.Func([], [IDL.Vec(GarmentType)], ['query']),
+  'listMadeToOrder' : IDL.Func([], [IDL.Vec(MadeToOrder)], ['query']),
   'listOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
   'listOrdersByStatus' : IDL.Func([IDL.Text], [IDL.Vec(Order)], ['query']),
+  'listSubscribers' : IDL.Func([], [IDL.Vec(Subscriber)], ['query']),
+  'listSubscriptionPlans' : IDL.Func(
+      [],
+      [IDL.Vec(SubscriptionPlan)],
+      ['query'],
+    ),
   'updateCustomer' : IDL.Func(
       [
         IDL.Text,
@@ -99,12 +202,74 @@ export const idlService = IDL.Service({
       [IDL.Bool],
       [],
     ),
+  'updateD2CProduct' : IDL.Func(
+      [
+        IDL.Nat,
+        IDL.Text,
+        IDL.Text,
+        IDL.Float64,
+        IDL.Text,
+        IDL.Vec(IDL.Text),
+        IDL.Bool,
+      ],
+      [IDL.Bool],
+      [],
+    ),
   'updateGarment' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Vec(PatternPiece)],
       [],
       [],
     ),
+  'updateMadeToOrder' : IDL.Func(
+      [
+        IDL.Nat,
+        IDL.Text,
+        IDL.Text,
+        Measurements,
+        OrderPriority,
+        IDL.Text,
+        IDL.Text,
+      ],
+      [IDL.Bool],
+      [],
+    ),
   'updateOrderStatus' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
+  'updateProductionStatus' : IDL.Func(
+      [IDL.Nat, ProductionStatus],
+      [IDL.Bool],
+      [],
+    ),
+  'updateSubscriber' : IDL.Func(
+      [
+        IDL.Nat,
+        IDL.Text,
+        IDL.Text,
+        IDL.Nat,
+        IDL.Text,
+        IDL.Text,
+        SubscriberStatus,
+      ],
+      [IDL.Bool],
+      [],
+    ),
+  'updateSubscriberStatus' : IDL.Func(
+      [IDL.Nat, SubscriberStatus],
+      [IDL.Bool],
+      [],
+    ),
+  'updateSubscriptionPlan' : IDL.Func(
+      [
+        IDL.Nat,
+        IDL.Text,
+        IDL.Text,
+        IDL.Float64,
+        BillingCycle,
+        IDL.Vec(IDL.Text),
+        IDL.Bool,
+      ],
+      [IDL.Bool],
+      [],
+    ),
 });
 
 export const idlInitArgs = [];
@@ -121,6 +286,16 @@ export const idlFactory = ({ IDL }) => {
     'instructions' : IDL.Text,
     'cutOnFold' : IDL.Bool,
   });
+  const OrderPriority = IDL.Variant({
+    'Low' : IDL.Null,
+    'High' : IDL.Null,
+    'Normal' : IDL.Null,
+  });
+  const BillingCycle = IDL.Variant({
+    'Quarterly' : IDL.Null,
+    'Monthly' : IDL.Null,
+    'Yearly' : IDL.Null,
+  });
   const Customer = IDL.Record({
     'id' : IDL.Text,
     'hip' : IDL.Float64,
@@ -131,10 +306,38 @@ export const idlFactory = ({ IDL }) => {
     'phone' : IDL.Text,
     'waist' : IDL.Float64,
   });
+  const D2CProduct = IDL.Record({
+    'id' : IDL.Nat,
+    'inStock' : IDL.Bool,
+    'fabricType' : IDL.Text,
+    'name' : IDL.Text,
+    'createdAt' : IDL.Int,
+    'description' : IDL.Text,
+    'sizesAvailable' : IDL.Vec(IDL.Text),
+    'price' : IDL.Float64,
+  });
   const GarmentType = IDL.Record({
     'patternPieces' : IDL.Vec(PatternPiece),
     'name' : IDL.Text,
     'description' : IDL.Text,
+  });
+  const ProductionStatus = IDL.Variant({
+    'Queued' : IDL.Null,
+    'Stitching' : IDL.Null,
+    'QualityCheck' : IDL.Null,
+    'Ready' : IDL.Null,
+    'Cutting' : IDL.Null,
+  });
+  const MadeToOrder = IDL.Record({
+    'id' : IDL.Nat,
+    'customerName' : IDL.Text,
+    'deliveryDeadline' : IDL.Text,
+    'createdAt' : IDL.Int,
+    'garmentName' : IDL.Text,
+    'measurements' : Measurements,
+    'productionStatus' : ProductionStatus,
+    'notes' : IDL.Text,
+    'priority' : OrderPriority,
   });
   const Order = IDL.Record({
     'id' : IDL.Text,
@@ -147,6 +350,31 @@ export const idlFactory = ({ IDL }) => {
     'length' : IDL.Float64,
     'notes' : IDL.Text,
     'waist' : IDL.Float64,
+  });
+  const SubscriberStatus = IDL.Variant({
+    'Paused' : IDL.Null,
+    'Active' : IDL.Null,
+    'Cancelled' : IDL.Null,
+  });
+  const Subscriber = IDL.Record({
+    'id' : IDL.Nat,
+    'status' : SubscriberStatus,
+    'planId' : IDL.Nat,
+    'name' : IDL.Text,
+    'createdAt' : IDL.Int,
+    'phone' : IDL.Text,
+    'planName' : IDL.Text,
+    'startDate' : IDL.Text,
+  });
+  const SubscriptionPlan = IDL.Record({
+    'id' : IDL.Nat,
+    'name' : IDL.Text,
+    'createdAt' : IDL.Int,
+    'description' : IDL.Text,
+    'isActive' : IDL.Bool,
+    'billingCycle' : BillingCycle,
+    'price' : IDL.Float64,
+    'includedServices' : IDL.Vec(IDL.Text),
   });
   
   return IDL.Service({
@@ -167,9 +395,26 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(PatternPiece, Measurements))],
         ['query'],
       ),
+    'createD2CProduct' : IDL.Func(
+        [
+          IDL.Text,
+          IDL.Text,
+          IDL.Float64,
+          IDL.Text,
+          IDL.Vec(IDL.Text),
+          IDL.Bool,
+        ],
+        [IDL.Nat],
+        [],
+      ),
     'createGarment' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Vec(PatternPiece)],
         [],
+        [],
+      ),
+    'createMadeToOrder' : IDL.Func(
+        [IDL.Text, IDL.Text, Measurements, OrderPriority, IDL.Text, IDL.Text],
+        [IDL.Nat],
         [],
       ),
     'createOrder' : IDL.Func(
@@ -185,16 +430,46 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Text],
         [],
       ),
+    'createSubscriber' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Nat, IDL.Text, IDL.Text],
+        [IDL.Nat],
+        [],
+      ),
+    'createSubscriptionPlan' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Float64, BillingCycle, IDL.Vec(IDL.Text)],
+        [IDL.Nat],
+        [],
+      ),
     'deleteCustomer' : IDL.Func([IDL.Text], [IDL.Bool], []),
+    'deleteD2CProduct' : IDL.Func([IDL.Nat], [IDL.Bool], []),
     'deleteGarment' : IDL.Func([IDL.Text], [], []),
+    'deleteMadeToOrder' : IDL.Func([IDL.Nat], [IDL.Bool], []),
     'deleteOrder' : IDL.Func([IDL.Text], [IDL.Bool], []),
+    'deleteSubscriber' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+    'deleteSubscriptionPlan' : IDL.Func([IDL.Nat], [IDL.Bool], []),
     'getCustomer' : IDL.Func([IDL.Text], [IDL.Opt(Customer)], ['query']),
+    'getD2CProduct' : IDL.Func([IDL.Nat], [IDL.Opt(D2CProduct)], ['query']),
     'getGarment' : IDL.Func([IDL.Text], [GarmentType], ['query']),
+    'getMadeToOrder' : IDL.Func([IDL.Nat], [IDL.Opt(MadeToOrder)], ['query']),
     'getOrder' : IDL.Func([IDL.Text], [IDL.Opt(Order)], ['query']),
+    'getSubscriber' : IDL.Func([IDL.Nat], [IDL.Opt(Subscriber)], ['query']),
+    'getSubscriptionPlan' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Opt(SubscriptionPlan)],
+        ['query'],
+      ),
     'listCustomers' : IDL.Func([], [IDL.Vec(Customer)], ['query']),
+    'listD2CProducts' : IDL.Func([], [IDL.Vec(D2CProduct)], ['query']),
     'listGarments' : IDL.Func([], [IDL.Vec(GarmentType)], ['query']),
+    'listMadeToOrder' : IDL.Func([], [IDL.Vec(MadeToOrder)], ['query']),
     'listOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
     'listOrdersByStatus' : IDL.Func([IDL.Text], [IDL.Vec(Order)], ['query']),
+    'listSubscribers' : IDL.Func([], [IDL.Vec(Subscriber)], ['query']),
+    'listSubscriptionPlans' : IDL.Func(
+        [],
+        [IDL.Vec(SubscriptionPlan)],
+        ['query'],
+      ),
     'updateCustomer' : IDL.Func(
         [
           IDL.Text,
@@ -208,12 +483,74 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Bool],
         [],
       ),
+    'updateD2CProduct' : IDL.Func(
+        [
+          IDL.Nat,
+          IDL.Text,
+          IDL.Text,
+          IDL.Float64,
+          IDL.Text,
+          IDL.Vec(IDL.Text),
+          IDL.Bool,
+        ],
+        [IDL.Bool],
+        [],
+      ),
     'updateGarment' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Vec(PatternPiece)],
         [],
         [],
       ),
+    'updateMadeToOrder' : IDL.Func(
+        [
+          IDL.Nat,
+          IDL.Text,
+          IDL.Text,
+          Measurements,
+          OrderPriority,
+          IDL.Text,
+          IDL.Text,
+        ],
+        [IDL.Bool],
+        [],
+      ),
     'updateOrderStatus' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
+    'updateProductionStatus' : IDL.Func(
+        [IDL.Nat, ProductionStatus],
+        [IDL.Bool],
+        [],
+      ),
+    'updateSubscriber' : IDL.Func(
+        [
+          IDL.Nat,
+          IDL.Text,
+          IDL.Text,
+          IDL.Nat,
+          IDL.Text,
+          IDL.Text,
+          SubscriberStatus,
+        ],
+        [IDL.Bool],
+        [],
+      ),
+    'updateSubscriberStatus' : IDL.Func(
+        [IDL.Nat, SubscriberStatus],
+        [IDL.Bool],
+        [],
+      ),
+    'updateSubscriptionPlan' : IDL.Func(
+        [
+          IDL.Nat,
+          IDL.Text,
+          IDL.Text,
+          IDL.Float64,
+          BillingCycle,
+          IDL.Vec(IDL.Text),
+          IDL.Bool,
+        ],
+        [IDL.Bool],
+        [],
+      ),
   });
 };
 
