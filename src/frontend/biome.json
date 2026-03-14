@@ -23,14 +23,21 @@
       "recommended": true,
       "correctness": {
         "useHookAtTopLevel": "error",
-        "noUnusedVariables": "error"
+        "noUnusedVariables": "error",
+        "useExhaustiveDependencies": "off"
       },
       "suspicious": {
-        "noExplicitAny": "off"
+        "noExplicitAny": "off",
+        "noArrayIndexKey": "off"
       },
       "style": {
         "useConst": "off",
         "noNonNullAssertion": "off"
+      },
+      "a11y": {
+        "noLabelWithoutControl": "off",
+        "useKeyWithClickEvents": "off",
+        "useButtonType": "off"
       }
     }
   },

@@ -1,52 +1,52 @@
-# KARNI IMPEX - Garment ERP System
+# Garment ERP CRM - KARNI IMPEX
 
 ## Current State
-Existing app: Women's Garment Cutting Patterns with Pattern Generator, Cost Calculator, Orders, Customers, Made-to-Order, D2C Catalog, Subscriptions, Admin Panel.
+App has basic garment pattern generation, cost calculator, order management, customer measurement history, Made-to-Order queue, D2C Catalog, and Subscriptions. No ERP/production modules exist.
 
 ## Requested Changes (Diff)
 
 ### Add
-- **Dashboard**: Summary cards for orders, fabric stock, pending jobs, revenue, karigar count, recent activity feed
-- **Photo Master**: Photo gallery to upload and manage design/sample photos with labels
-- **Marker Planning**: Fabric marker layout planner - enter fabric width, lengths, garment count, calculate marker efficiency
-- **KARNI IMPEX**: Company profile page with logo, address, GST number, contact info, bank details (used in bills/challans)
-- **Design Register**: Design catalog with design number, name, category, season, fabric type, photo reference
-- **Dyeing Job / Design Master**: Dyeing job card - fabric lot, color, dyer name, quantity, status, challan
-- **Production Plan**: Production planning with style, quantity, delivery date, assigned karigar, stages
-- **Fabric Purchase**: Purchase entries - vendor, fabric type, meters, rate, total, invoice number
-- **Fabric Stock**: Current stock ledger - fabric type, color, available meters, reserved, issued
-- **Fabric Issue**: Issue fabric to jobs - fabric type, meters issued, job reference, date
-- **Print Job**: Print job card - design number, fabric, printer name, quantity, status, challan
-- **Embroidery Job**: Embroidery job card - design, fabric, embroider name, quantity, rate, status, challan
-- **Handwork Job**: Handwork job card - type, fabric, karigar, quantity, rate, status, challan
-- **Cutting Job**: Cutting job card - style, fabric, cutter, layers, pieces count, status, challan
-- **Stitching Job**: Stitching job card - style, tailor, quantity, rate, status, challan
-- **Quality Check**: QC log - job reference, inspector, pass/fail count, remarks
-- **Pressing**: Pressing job card - style, presser, quantity, status, challan
-- **Packing**: Packing job card - style, packer, quantity, boxes, status, challan
-- **Dispatch**: Dispatch record - buyer, quantity, transport, tracking, status
-- **Karigar Ledger**: Worker account - karigar name, job entries, payments, balance
-- **Account Ledger**: General ledger - debit/credit entries, balance
-- **Pattern Planning AI**: Smart pattern calculator - input measurements, garment type, get optimized pattern seam allowances and layout suggestions
-- **Fabric Consumption AI**: Smart fabric consumption estimator - garment type, sizes, quantity → fabric meters needed
-- **BILL GST**: GST invoice generator with company details, line items, GST calculation, print/PDF
-- **CHALLAN**: Challan generator available at every job - job type, party, items, print/PDF
-- **P/L Account**: Profit & Loss statement - income vs expenses summary
-- **Print to PDF**: Browser print for all bills, challans, and reports
-- **Social Media**: Generate social media post content (text + share image preview) for new collections/designs
+- **Dashboard**: KPIs - active orders, pending jobs, fabric stock alerts, revenue summary, job-wise status chart
+- **Photo Master**: Upload and tag design/style photos with garment type and color labels
+- **Marker Planning**: Enter fabric width, lay length, number of plies; calculate fabric consumption per marker
+- **KARNI IMPEX**: Company profile page - name, GST number, address, bank details, logo; used in all bills/challans
+- **Design Register**: Register designs with design number, photo, fabric type, colors, season
+- **Dyeing Job**: Create dyeing jobs with lot number, fabric quantity, color, karigar assignment; generate challan PDF
+- **Production Plan**: Create production plans linking order, design, target quantity, timeline
+- **Fabric Purchase**: Purchase entries - supplier, fabric type, quantity, rate, GST, invoice number
+- **Fabric Stock**: View current fabric stock (auto-calculated from purchase minus issues)
+- **Fabric Issue**: Issue fabric to jobs - job type, job number, fabric type, quantity issued
+- **Print Job**: Print job with design, quantity, karigar; challan generation
+- **Embroidery Job**: Embroidery job with design, quantity, karigar; challan generation
+- **Handwork Job**: Handwork job assignment with karigar; challan generation
+- **Cutting Job**: Cutting job with marker number, plies, quantity; challan generation
+- **Stitching Job**: Stitching job with quantity, karigar; challan generation
+- **Quality Check**: QC entries per job - pass/fail/rework count
+- **Pressing**: Pressing job assignment with quantity; challan generation
+- **Packing**: Packing job with carton count, quantity; challan generation
+- **Dispatch**: Dispatch entry with buyer, quantity, vehicle, LR number
+- **Karigar Ledger**: Per-karigar ledger showing all jobs, amounts paid/pending
+- **Account Ledger**: Party-wise account ledger for fabric suppliers and buyers
+- **Pattern Planning AI**: Rule-based suggestions for pattern grading, fabric layout optimization based on entered measurements and garment type
+- **Fabric Consumption AI**: Calculate estimated fabric consumption based on garment type, sizes, quantities
+- **GST Bill**: Generate GST invoice with party details, HSN codes, CGST/SGST/IGST
+- **Challan**: Auto-generate job challans at every job creation (printable/PDF)
+- **P/L Account**: Monthly profit & loss summary from purchases, job costs, sales
+- **Print to PDF**: Every module's view/list should have a Print/PDF button
+- **Social Media**: Post design photos to sharing links (copy caption + image for WhatsApp/Instagram manual sharing)
 
 ### Modify
-- App branding: rename to KARNI IMPEX ERP
-- Navigation: replace tab bar with sidebar navigation for better usability with many modules
-- Keep all existing features (Pattern Generator, Cost Calculator, Orders, Customers, MTO, D2C, Subscriptions, Admin)
+- App navigation: Replace current tab structure with full sidebar ERP navigation grouped by section
 
 ### Remove
-- Nothing removed (backward compatible)
+- Nothing removed; existing pattern generator kept as a tab
 
 ## Implementation Plan
-1. Generate new Motoko backend with all new data types and CRUD APIs
-2. Restructure App.tsx with sidebar navigation
-3. Create new component files for each module
-4. Implement Challan and Bill GST with print-friendly layouts
-5. Implement PDF/Print using window.print() with print CSS
-6. Social Media: text template generator + copy-to-clipboard share
+1. Backend: Stable data types for all ERP entities (Company, Design, FabricPurchase, FabricStock, FabricIssue, Job types, Challan, GST Bill, Karigar, Account, Ledger entries)
+2. Backend: CRUD operations for all entities
+3. Backend: Computed queries (stock calculation, ledger balance, P/L)
+4. Frontend: Sidebar navigation with section grouping
+5. Frontend: All module pages with forms, lists, print/PDF capability
+6. Frontend: Challan component reused across all job types
+7. Frontend: Dashboard with live KPIs
+8. Frontend: GST Bill and P/L report pages

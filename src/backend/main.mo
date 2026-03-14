@@ -6,9 +6,9 @@ import Text "mo:core/Text";
 import Iter "mo:core/Iter";
 import Time "mo:core/Time";
 import Nat "mo:core/Nat";
-import Migration "migration";
 
-(with migration = Migration.run)
+
+
 actor {
   // Reuse existing types from original system
   type PatternPiece = {
