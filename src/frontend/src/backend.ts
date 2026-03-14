@@ -89,958 +89,980 @@ export class ExternalBlob {
         return this;
     }
 }
-export interface MadeToOrder {
+export interface Photo {
     id: bigint;
-    customerName: string;
-    deliveryDeadline: string;
-    createdAt: bigint;
-    garmentName: string;
-    measurements: Measurements;
-    productionStatus: ProductionStatus;
-    notes: string;
-    priority: OrderPriority;
+    date: bigint;
+    category: string;
+    photoLabel: string;
 }
-export interface GarmentType {
-    patternPieces: Array<PatternPiece>;
+export interface CompanyProfile {
+    bankDetails: string;
+    gstNumber: string;
     name: string;
-    description: string;
+    email: string;
+    address: string;
+    phone: string;
 }
-export interface D2CProduct {
+export interface ProductionPlan {
     id: bigint;
-    inStock: boolean;
+    stages: Array<ProductionStage>;
+    deliveryDate: bigint;
+    styleName: string;
+    totalQuantity: bigint;
+}
+export interface FabricIssue {
+    id: bigint;
+    meters: number;
+    fabricType: string;
+    date: bigint;
+    issuedTo: string;
+}
+export interface LedgerEntry {
+    id: bigint;
+    entryType: LedgerEntryType;
+    date: bigint;
+    description: string;
+    category: string;
+    amount: number;
+}
+export interface FabricPurchase {
+    id: bigint;
+    meters: number;
+    fabricType: string;
+    date: bigint;
+    color: string;
+    rate: number;
+    invoiceNumber: string;
+    vendor: string;
+    amount: number;
+}
+export interface Design {
+    id: bigint;
     fabricType: string;
     name: string;
-    createdAt: bigint;
     description: string;
-    sizesAvailable: Array<string>;
-    price: number;
+    season: string;
+    number: string;
+    category: string;
 }
-export interface Customer {
-    id: string;
-    hip: number;
-    bust: number;
-    name: string;
-    createdAt: bigint;
-    length: number;
-    phone: string;
-    waist: number;
-}
-export interface SubscriptionPlan {
+export interface QualityCheck {
     id: bigint;
-    name: string;
-    createdAt: bigint;
+    jobType: string;
+    date: bigint;
+    passCount: bigint;
+    jobReference: string;
+    failCount: bigint;
+    remarks: string;
+    inspector: string;
+}
+export interface KarigarLedgerEntry {
+    id: bigint;
+    balance: number;
+    entries: Array<LedgerEntry>;
+    karigarName: string;
+}
+export interface ProductionStage {
+    completionDate: bigint;
+    assignedKarigar: string;
+    targetQuantity: bigint;
+    stageName: string;
+}
+export interface Job {
+    id: bigint;
+    status: JobStatus;
+    date: bigint;
+    rate: number;
+    karigarName: string;
+    style: string;
+    quantity: bigint;
+    partyName: string;
+    amount: number;
+    jobNumber: string;
+    fabricLot: string;
+}
+export interface GSTBill {
+    id: bigint;
+    lineItems: Array<BillLineItem>;
+    total: number;
+    date: bigint;
+    billNumber: string;
+    buyerGST: string;
+    buyerName: string;
+}
+export interface Challan {
+    id: bigint;
+    challanNumber: string;
+    jobType: string;
+    date: bigint;
+    partyName: string;
+    items: Array<ChallanItem>;
+}
+export interface BillLineItem {
+    qty: bigint;
+    rate: number;
     description: string;
-    isActive: boolean;
-    billingCycle: BillingCycle;
-    price: number;
-    includedServices: Array<string>;
+    gstPercentage: number;
 }
-export interface Subscriber {
+export interface FabricStock {
+    fabricType: string;
+    color: string;
+    availableMeters: number;
+    issuedMeters: number;
+    totalMeters: number;
+}
+export interface Dispatch {
     id: bigint;
-    status: SubscriberStatus;
-    planId: bigint;
-    name: string;
-    createdAt: bigint;
-    phone: string;
-    planName: string;
-    startDate: string;
-}
-export interface PatternPiece {
-    name: string;
-    instructions: string;
-    cutOnFold: boolean;
-}
-export interface Order {
-    id: string;
-    hip: number;
-    customerName: string;
     status: string;
-    bust: number;
-    createdAt: bigint;
-    garmentName: string;
-    length: number;
-    notes: string;
-    waist: number;
+    trackingNumber: string;
+    date: bigint;
+    style: string;
+    quantity: bigint;
+    transportName: string;
+    buyerName: string;
 }
-export interface Measurements {
-    hip: number;
-    bust: number;
-    length: number;
-    waist: number;
+export interface ChallanItem {
+    qty: bigint;
+    description: string;
 }
-export enum BillingCycle {
-    Quarterly = "Quarterly",
-    Monthly = "Monthly",
-    Yearly = "Yearly"
+export enum JobStatus {
+    InProgress = "InProgress",
+    Completed = "Completed",
+    Pending = "Pending"
 }
-export enum OrderPriority {
-    Low = "Low",
-    High = "High",
-    Normal = "Normal"
-}
-export enum ProductionStatus {
-    Queued = "Queued",
-    Stitching = "Stitching",
-    QualityCheck = "QualityCheck",
-    Ready = "Ready",
-    Cutting = "Cutting"
-}
-export enum SubscriberStatus {
-    Paused = "Paused",
-    Active = "Active",
-    Cancelled = "Cancelled"
+export enum LedgerEntryType {
+    Debit = "Debit",
+    Credit = "Credit"
 }
 export interface backendInterface {
-    addCustomer(name: string, phone: string, bust: number, waist: number, hip: number, length: number): Promise<string>;
-    calculatePattern(garmentName: string, measurements: Measurements): Promise<Array<[PatternPiece, Measurements]>>;
-    createD2CProduct(name: string, description: string, price: number, fabricType: string, sizesAvailable: Array<string>, inStock: boolean): Promise<bigint>;
-    createGarment(name: string, description: string, patternPieces: Array<PatternPiece>): Promise<void>;
-    createMadeToOrder(customerName: string, garmentName: string, measurements: Measurements, priority: OrderPriority, deliveryDeadline: string, notes: string): Promise<bigint>;
-    createOrder(customerName: string, garmentName: string, bust: number, waist: number, hip: number, length: number, notes: string): Promise<string>;
-    createSubscriber(name: string, phone: string, planId: bigint, planName: string, startDate: string): Promise<bigint>;
-    createSubscriptionPlan(name: string, description: string, price: number, billingCycle: BillingCycle, includedServices: Array<string>): Promise<bigint>;
-    deleteCustomer(id: string): Promise<boolean>;
-    deleteD2CProduct(id: bigint): Promise<boolean>;
-    deleteGarment(name: string): Promise<void>;
-    deleteMadeToOrder(id: bigint): Promise<boolean>;
-    deleteOrder(id: string): Promise<boolean>;
-    deleteSubscriber(id: bigint): Promise<boolean>;
-    deleteSubscriptionPlan(id: bigint): Promise<boolean>;
-    getCustomer(id: string): Promise<Customer | null>;
-    getD2CProduct(id: bigint): Promise<D2CProduct | null>;
-    getGarment(name: string): Promise<GarmentType>;
-    getMadeToOrder(id: bigint): Promise<MadeToOrder | null>;
-    getOrder(id: string): Promise<Order | null>;
-    getSubscriber(id: bigint): Promise<Subscriber | null>;
-    getSubscriptionPlan(id: bigint): Promise<SubscriptionPlan | null>;
-    listCustomers(): Promise<Array<Customer>>;
-    listD2CProducts(): Promise<Array<D2CProduct>>;
-    listGarments(): Promise<Array<GarmentType>>;
-    listMadeToOrder(): Promise<Array<MadeToOrder>>;
-    listOrders(): Promise<Array<Order>>;
-    listOrdersByStatus(status: string): Promise<Array<Order>>;
-    listSubscribers(): Promise<Array<Subscriber>>;
-    listSubscriptionPlans(): Promise<Array<SubscriptionPlan>>;
-    updateCustomer(id: string, name: string, phone: string, bust: number, waist: number, hip: number, length: number): Promise<boolean>;
-    updateD2CProduct(id: bigint, name: string, description: string, price: number, fabricType: string, sizesAvailable: Array<string>, inStock: boolean): Promise<boolean>;
-    updateGarment(name: string, newDescription: string, newPatternPieces: Array<PatternPiece>): Promise<void>;
-    updateMadeToOrder(id: bigint, customerName: string, garmentName: string, measurements: Measurements, priority: OrderPriority, deliveryDeadline: string, notes: string): Promise<boolean>;
-    updateOrderStatus(id: string, status: string): Promise<boolean>;
-    updateProductionStatus(id: bigint, newStatus: ProductionStatus): Promise<boolean>;
-    updateSubscriber(id: bigint, name: string, phone: string, planId: bigint, planName: string, startDate: string, status: SubscriberStatus): Promise<boolean>;
-    updateSubscriberStatus(id: bigint, newStatus: SubscriberStatus): Promise<boolean>;
-    updateSubscriptionPlan(id: bigint, name: string, description: string, price: number, billingCycle: BillingCycle, includedServices: Array<string>, isActive: boolean): Promise<boolean>;
+    addAccountLedgerEntry(entryType: LedgerEntryType, category: string, amount: number, description: string, date: bigint): Promise<bigint>;
+    addChallan(challanNumber: string, jobType: string, partyName: string, items: Array<ChallanItem>, date: bigint): Promise<bigint>;
+    addDesign(number: string, name: string, category: string, season: string, fabricType: string, description: string): Promise<bigint>;
+    addDispatch(style: string, buyerName: string, quantity: bigint, transportName: string, trackingNumber: string, status: string, date: bigint): Promise<bigint>;
+    addFabricPurchase(vendor: string, fabricType: string, color: string, meters: number, rate: number, amount: number, invoiceNumber: string, date: bigint): Promise<bigint>;
+    addGSTBill(billNumber: string, buyerName: string, buyerGST: string, date: bigint, lineItems: Array<BillLineItem>, total: number): Promise<bigint>;
+    addJob(jobNumber: string, style: string, partyName: string, fabricLot: string, quantity: bigint, rate: number, amount: number, karigarName: string, status: JobStatus, date: bigint): Promise<bigint>;
+    addKarigarLedgerEntry(karigarName: string, entries: Array<LedgerEntry>, balance: number): Promise<bigint>;
+    addPhoto(photoLabel: string, category: string, date: bigint): Promise<bigint>;
+    addProductionPlan(styleName: string, totalQuantity: bigint, deliveryDate: bigint, stages: Array<ProductionStage>): Promise<bigint>;
+    addQualityCheck(jobReference: string, jobType: string, inspector: string, passCount: bigint, failCount: bigint, remarks: string, date: bigint): Promise<bigint>;
+    getAccountLedgerEntry(id: bigint): Promise<LedgerEntry | null>;
+    getChallan(id: bigint): Promise<Challan | null>;
+    getCompanyProfile(): Promise<CompanyProfile | null>;
+    getDesign(id: bigint): Promise<Design | null>;
+    getDispatch(id: bigint): Promise<Dispatch | null>;
+    getFabricIssue(id: bigint): Promise<FabricIssue | null>;
+    getFabricPurchase(id: bigint): Promise<FabricPurchase | null>;
+    getFabricStock(fabricType: string): Promise<FabricStock | null>;
+    getGSTBill(id: bigint): Promise<GSTBill | null>;
+    getJob(id: bigint): Promise<Job | null>;
+    getKarigarLedger(id: bigint): Promise<KarigarLedgerEntry | null>;
+    getPhoto(id: bigint): Promise<Photo | null>;
+    getProductionPlan(id: bigint): Promise<ProductionPlan | null>;
+    getQualityCheck(id: bigint): Promise<QualityCheck | null>;
+    issueFabric(fabricType: string, meters: number, issuedTo: string, date: bigint): Promise<bigint>;
+    listAccountLedgerEntries(): Promise<Array<LedgerEntry>>;
+    listChallans(): Promise<Array<Challan>>;
+    listDesigns(): Promise<Array<Design>>;
+    listDispatches(): Promise<Array<Dispatch>>;
+    listFabricIssues(): Promise<Array<FabricIssue>>;
+    listFabricPurchases(): Promise<Array<FabricPurchase>>;
+    listFabricStocks(): Promise<Array<FabricStock>>;
+    listGSTBills(): Promise<Array<GSTBill>>;
+    listJobs(): Promise<Array<Job>>;
+    listKarigarLedgers(): Promise<Array<KarigarLedgerEntry>>;
+    listPhotos(): Promise<Array<Photo>>;
+    listProductionPlans(): Promise<Array<ProductionPlan>>;
+    listQualityChecks(): Promise<Array<QualityCheck>>;
+    updateCompanyProfile(name: string, address: string, gstNumber: string, phone: string, email: string, bankDetails: string): Promise<void>;
 }
-import type { BillingCycle as _BillingCycle, Customer as _Customer, D2CProduct as _D2CProduct, MadeToOrder as _MadeToOrder, Measurements as _Measurements, Order as _Order, OrderPriority as _OrderPriority, ProductionStatus as _ProductionStatus, Subscriber as _Subscriber, SubscriberStatus as _SubscriberStatus, SubscriptionPlan as _SubscriptionPlan } from "./declarations/backend.did.d.ts";
+import type { Challan as _Challan, CompanyProfile as _CompanyProfile, Design as _Design, Dispatch as _Dispatch, FabricIssue as _FabricIssue, FabricPurchase as _FabricPurchase, FabricStock as _FabricStock, GSTBill as _GSTBill, Job as _Job, JobStatus as _JobStatus, KarigarLedgerEntry as _KarigarLedgerEntry, LedgerEntry as _LedgerEntry, LedgerEntryType as _LedgerEntryType, Photo as _Photo, ProductionPlan as _ProductionPlan, QualityCheck as _QualityCheck } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
-    async addCustomer(arg0: string, arg1: string, arg2: number, arg3: number, arg4: number, arg5: number): Promise<string> {
+    async addAccountLedgerEntry(arg0: LedgerEntryType, arg1: string, arg2: number, arg3: string, arg4: bigint): Promise<bigint> {
         if (this.processError) {
             try {
-                const result = await this.actor.addCustomer(arg0, arg1, arg2, arg3, arg4, arg5);
+                const result = await this.actor.addAccountLedgerEntry(to_candid_LedgerEntryType_n1(this._uploadFile, this._downloadFile, arg0), arg1, arg2, arg3, arg4);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.addCustomer(arg0, arg1, arg2, arg3, arg4, arg5);
+            const result = await this.actor.addAccountLedgerEntry(to_candid_LedgerEntryType_n1(this._uploadFile, this._downloadFile, arg0), arg1, arg2, arg3, arg4);
             return result;
         }
     }
-    async calculatePattern(arg0: string, arg1: Measurements): Promise<Array<[PatternPiece, Measurements]>> {
+    async addChallan(arg0: string, arg1: string, arg2: string, arg3: Array<ChallanItem>, arg4: bigint): Promise<bigint> {
         if (this.processError) {
             try {
-                const result = await this.actor.calculatePattern(arg0, arg1);
+                const result = await this.actor.addChallan(arg0, arg1, arg2, arg3, arg4);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.calculatePattern(arg0, arg1);
+            const result = await this.actor.addChallan(arg0, arg1, arg2, arg3, arg4);
             return result;
         }
     }
-    async createD2CProduct(arg0: string, arg1: string, arg2: number, arg3: string, arg4: Array<string>, arg5: boolean): Promise<bigint> {
+    async addDesign(arg0: string, arg1: string, arg2: string, arg3: string, arg4: string, arg5: string): Promise<bigint> {
         if (this.processError) {
             try {
-                const result = await this.actor.createD2CProduct(arg0, arg1, arg2, arg3, arg4, arg5);
+                const result = await this.actor.addDesign(arg0, arg1, arg2, arg3, arg4, arg5);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createD2CProduct(arg0, arg1, arg2, arg3, arg4, arg5);
+            const result = await this.actor.addDesign(arg0, arg1, arg2, arg3, arg4, arg5);
             return result;
         }
     }
-    async createGarment(arg0: string, arg1: string, arg2: Array<PatternPiece>): Promise<void> {
+    async addDispatch(arg0: string, arg1: string, arg2: bigint, arg3: string, arg4: string, arg5: string, arg6: bigint): Promise<bigint> {
         if (this.processError) {
             try {
-                const result = await this.actor.createGarment(arg0, arg1, arg2);
+                const result = await this.actor.addDispatch(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createGarment(arg0, arg1, arg2);
+            const result = await this.actor.addDispatch(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
             return result;
         }
     }
-    async createMadeToOrder(arg0: string, arg1: string, arg2: Measurements, arg3: OrderPriority, arg4: string, arg5: string): Promise<bigint> {
+    async addFabricPurchase(arg0: string, arg1: string, arg2: string, arg3: number, arg4: number, arg5: number, arg6: string, arg7: bigint): Promise<bigint> {
         if (this.processError) {
             try {
-                const result = await this.actor.createMadeToOrder(arg0, arg1, arg2, to_candid_OrderPriority_n1(this._uploadFile, this._downloadFile, arg3), arg4, arg5);
+                const result = await this.actor.addFabricPurchase(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createMadeToOrder(arg0, arg1, arg2, to_candid_OrderPriority_n1(this._uploadFile, this._downloadFile, arg3), arg4, arg5);
+            const result = await this.actor.addFabricPurchase(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
             return result;
         }
     }
-    async createOrder(arg0: string, arg1: string, arg2: number, arg3: number, arg4: number, arg5: number, arg6: string): Promise<string> {
+    async addGSTBill(arg0: string, arg1: string, arg2: string, arg3: bigint, arg4: Array<BillLineItem>, arg5: number): Promise<bigint> {
         if (this.processError) {
             try {
-                const result = await this.actor.createOrder(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+                const result = await this.actor.addGSTBill(arg0, arg1, arg2, arg3, arg4, arg5);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createOrder(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+            const result = await this.actor.addGSTBill(arg0, arg1, arg2, arg3, arg4, arg5);
             return result;
         }
     }
-    async createSubscriber(arg0: string, arg1: string, arg2: bigint, arg3: string, arg4: string): Promise<bigint> {
+    async addJob(arg0: string, arg1: string, arg2: string, arg3: string, arg4: bigint, arg5: number, arg6: number, arg7: string, arg8: JobStatus, arg9: bigint): Promise<bigint> {
         if (this.processError) {
             try {
-                const result = await this.actor.createSubscriber(arg0, arg1, arg2, arg3, arg4);
+                const result = await this.actor.addJob(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, to_candid_JobStatus_n3(this._uploadFile, this._downloadFile, arg8), arg9);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createSubscriber(arg0, arg1, arg2, arg3, arg4);
+            const result = await this.actor.addJob(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, to_candid_JobStatus_n3(this._uploadFile, this._downloadFile, arg8), arg9);
             return result;
         }
     }
-    async createSubscriptionPlan(arg0: string, arg1: string, arg2: number, arg3: BillingCycle, arg4: Array<string>): Promise<bigint> {
+    async addKarigarLedgerEntry(arg0: string, arg1: Array<LedgerEntry>, arg2: number): Promise<bigint> {
         if (this.processError) {
             try {
-                const result = await this.actor.createSubscriptionPlan(arg0, arg1, arg2, to_candid_BillingCycle_n3(this._uploadFile, this._downloadFile, arg3), arg4);
+                const result = await this.actor.addKarigarLedgerEntry(arg0, to_candid_vec_n5(this._uploadFile, this._downloadFile, arg1), arg2);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createSubscriptionPlan(arg0, arg1, arg2, to_candid_BillingCycle_n3(this._uploadFile, this._downloadFile, arg3), arg4);
+            const result = await this.actor.addKarigarLedgerEntry(arg0, to_candid_vec_n5(this._uploadFile, this._downloadFile, arg1), arg2);
             return result;
         }
     }
-    async deleteCustomer(arg0: string): Promise<boolean> {
+    async addPhoto(arg0: string, arg1: string, arg2: bigint): Promise<bigint> {
         if (this.processError) {
             try {
-                const result = await this.actor.deleteCustomer(arg0);
+                const result = await this.actor.addPhoto(arg0, arg1, arg2);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.deleteCustomer(arg0);
+            const result = await this.actor.addPhoto(arg0, arg1, arg2);
             return result;
         }
     }
-    async deleteD2CProduct(arg0: bigint): Promise<boolean> {
+    async addProductionPlan(arg0: string, arg1: bigint, arg2: bigint, arg3: Array<ProductionStage>): Promise<bigint> {
         if (this.processError) {
             try {
-                const result = await this.actor.deleteD2CProduct(arg0);
+                const result = await this.actor.addProductionPlan(arg0, arg1, arg2, arg3);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.deleteD2CProduct(arg0);
+            const result = await this.actor.addProductionPlan(arg0, arg1, arg2, arg3);
             return result;
         }
     }
-    async deleteGarment(arg0: string): Promise<void> {
+    async addQualityCheck(arg0: string, arg1: string, arg2: string, arg3: bigint, arg4: bigint, arg5: string, arg6: bigint): Promise<bigint> {
         if (this.processError) {
             try {
-                const result = await this.actor.deleteGarment(arg0);
+                const result = await this.actor.addQualityCheck(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.deleteGarment(arg0);
+            const result = await this.actor.addQualityCheck(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
             return result;
         }
     }
-    async deleteMadeToOrder(arg0: bigint): Promise<boolean> {
+    async getAccountLedgerEntry(arg0: bigint): Promise<LedgerEntry | null> {
         if (this.processError) {
             try {
-                const result = await this.actor.deleteMadeToOrder(arg0);
-                return result;
+                const result = await this.actor.getAccountLedgerEntry(arg0);
+                return from_candid_opt_n8(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.deleteMadeToOrder(arg0);
-            return result;
+            const result = await this.actor.getAccountLedgerEntry(arg0);
+            return from_candid_opt_n8(this._uploadFile, this._downloadFile, result);
         }
     }
-    async deleteOrder(arg0: string): Promise<boolean> {
+    async getChallan(arg0: bigint): Promise<Challan | null> {
         if (this.processError) {
             try {
-                const result = await this.actor.deleteOrder(arg0);
-                return result;
+                const result = await this.actor.getChallan(arg0);
+                return from_candid_opt_n13(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.deleteOrder(arg0);
-            return result;
+            const result = await this.actor.getChallan(arg0);
+            return from_candid_opt_n13(this._uploadFile, this._downloadFile, result);
         }
     }
-    async deleteSubscriber(arg0: bigint): Promise<boolean> {
+    async getCompanyProfile(): Promise<CompanyProfile | null> {
         if (this.processError) {
             try {
-                const result = await this.actor.deleteSubscriber(arg0);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.deleteSubscriber(arg0);
-            return result;
-        }
-    }
-    async deleteSubscriptionPlan(arg0: bigint): Promise<boolean> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.deleteSubscriptionPlan(arg0);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.deleteSubscriptionPlan(arg0);
-            return result;
-        }
-    }
-    async getCustomer(arg0: string): Promise<Customer | null> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getCustomer(arg0);
-                return from_candid_opt_n5(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getCustomer(arg0);
-            return from_candid_opt_n5(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getD2CProduct(arg0: bigint): Promise<D2CProduct | null> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getD2CProduct(arg0);
-                return from_candid_opt_n6(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getD2CProduct(arg0);
-            return from_candid_opt_n6(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getGarment(arg0: string): Promise<GarmentType> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getGarment(arg0);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getGarment(arg0);
-            return result;
-        }
-    }
-    async getMadeToOrder(arg0: bigint): Promise<MadeToOrder | null> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getMadeToOrder(arg0);
-                return from_candid_opt_n7(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getMadeToOrder(arg0);
-            return from_candid_opt_n7(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getOrder(arg0: string): Promise<Order | null> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getOrder(arg0);
+                const result = await this.actor.getCompanyProfile();
                 return from_candid_opt_n14(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getOrder(arg0);
+            const result = await this.actor.getCompanyProfile();
             return from_candid_opt_n14(this._uploadFile, this._downloadFile, result);
         }
     }
-    async getSubscriber(arg0: bigint): Promise<Subscriber | null> {
+    async getDesign(arg0: bigint): Promise<Design | null> {
         if (this.processError) {
             try {
-                const result = await this.actor.getSubscriber(arg0);
+                const result = await this.actor.getDesign(arg0);
                 return from_candid_opt_n15(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getSubscriber(arg0);
+            const result = await this.actor.getDesign(arg0);
             return from_candid_opt_n15(this._uploadFile, this._downloadFile, result);
         }
     }
-    async getSubscriptionPlan(arg0: bigint): Promise<SubscriptionPlan | null> {
+    async getDispatch(arg0: bigint): Promise<Dispatch | null> {
         if (this.processError) {
             try {
-                const result = await this.actor.getSubscriptionPlan(arg0);
+                const result = await this.actor.getDispatch(arg0);
+                return from_candid_opt_n16(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getDispatch(arg0);
+            return from_candid_opt_n16(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getFabricIssue(arg0: bigint): Promise<FabricIssue | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getFabricIssue(arg0);
+                return from_candid_opt_n17(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getFabricIssue(arg0);
+            return from_candid_opt_n17(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getFabricPurchase(arg0: bigint): Promise<FabricPurchase | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getFabricPurchase(arg0);
+                return from_candid_opt_n18(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getFabricPurchase(arg0);
+            return from_candid_opt_n18(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getFabricStock(arg0: string): Promise<FabricStock | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getFabricStock(arg0);
+                return from_candid_opt_n19(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getFabricStock(arg0);
+            return from_candid_opt_n19(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getGSTBill(arg0: bigint): Promise<GSTBill | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getGSTBill(arg0);
                 return from_candid_opt_n20(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getSubscriptionPlan(arg0);
+            const result = await this.actor.getGSTBill(arg0);
             return from_candid_opt_n20(this._uploadFile, this._downloadFile, result);
         }
     }
-    async listCustomers(): Promise<Array<Customer>> {
+    async getJob(arg0: bigint): Promise<Job | null> {
         if (this.processError) {
             try {
-                const result = await this.actor.listCustomers();
+                const result = await this.actor.getJob(arg0);
+                return from_candid_opt_n21(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getJob(arg0);
+            return from_candid_opt_n21(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getKarigarLedger(arg0: bigint): Promise<KarigarLedgerEntry | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getKarigarLedger(arg0);
+                return from_candid_opt_n26(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getKarigarLedger(arg0);
+            return from_candid_opt_n26(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getPhoto(arg0: bigint): Promise<Photo | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getPhoto(arg0);
+                return from_candid_opt_n30(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getPhoto(arg0);
+            return from_candid_opt_n30(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getProductionPlan(arg0: bigint): Promise<ProductionPlan | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getProductionPlan(arg0);
+                return from_candid_opt_n31(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getProductionPlan(arg0);
+            return from_candid_opt_n31(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getQualityCheck(arg0: bigint): Promise<QualityCheck | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getQualityCheck(arg0);
+                return from_candid_opt_n32(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getQualityCheck(arg0);
+            return from_candid_opt_n32(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async issueFabric(arg0: string, arg1: number, arg2: string, arg3: bigint): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.issueFabric(arg0, arg1, arg2, arg3);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.listCustomers();
+            const result = await this.actor.issueFabric(arg0, arg1, arg2, arg3);
             return result;
         }
     }
-    async listD2CProducts(): Promise<Array<D2CProduct>> {
+    async listAccountLedgerEntries(): Promise<Array<LedgerEntry>> {
         if (this.processError) {
             try {
-                const result = await this.actor.listD2CProducts();
+                const result = await this.actor.listAccountLedgerEntries();
+                return from_candid_vec_n29(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.listAccountLedgerEntries();
+            return from_candid_vec_n29(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async listChallans(): Promise<Array<Challan>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.listChallans();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.listD2CProducts();
+            const result = await this.actor.listChallans();
             return result;
         }
     }
-    async listGarments(): Promise<Array<GarmentType>> {
+    async listDesigns(): Promise<Array<Design>> {
         if (this.processError) {
             try {
-                const result = await this.actor.listGarments();
+                const result = await this.actor.listDesigns();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.listGarments();
+            const result = await this.actor.listDesigns();
             return result;
         }
     }
-    async listMadeToOrder(): Promise<Array<MadeToOrder>> {
+    async listDispatches(): Promise<Array<Dispatch>> {
         if (this.processError) {
             try {
-                const result = await this.actor.listMadeToOrder();
-                return from_candid_vec_n25(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.listMadeToOrder();
-            return from_candid_vec_n25(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async listOrders(): Promise<Array<Order>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.listOrders();
+                const result = await this.actor.listDispatches();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.listOrders();
+            const result = await this.actor.listDispatches();
             return result;
         }
     }
-    async listOrdersByStatus(arg0: string): Promise<Array<Order>> {
+    async listFabricIssues(): Promise<Array<FabricIssue>> {
         if (this.processError) {
             try {
-                const result = await this.actor.listOrdersByStatus(arg0);
+                const result = await this.actor.listFabricIssues();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.listOrdersByStatus(arg0);
+            const result = await this.actor.listFabricIssues();
             return result;
         }
     }
-    async listSubscribers(): Promise<Array<Subscriber>> {
+    async listFabricPurchases(): Promise<Array<FabricPurchase>> {
         if (this.processError) {
             try {
-                const result = await this.actor.listSubscribers();
-                return from_candid_vec_n26(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.listSubscribers();
-            return from_candid_vec_n26(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async listSubscriptionPlans(): Promise<Array<SubscriptionPlan>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.listSubscriptionPlans();
-                return from_candid_vec_n27(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.listSubscriptionPlans();
-            return from_candid_vec_n27(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async updateCustomer(arg0: string, arg1: string, arg2: string, arg3: number, arg4: number, arg5: number, arg6: number): Promise<boolean> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.updateCustomer(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+                const result = await this.actor.listFabricPurchases();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updateCustomer(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+            const result = await this.actor.listFabricPurchases();
             return result;
         }
     }
-    async updateD2CProduct(arg0: bigint, arg1: string, arg2: string, arg3: number, arg4: string, arg5: Array<string>, arg6: boolean): Promise<boolean> {
+    async listFabricStocks(): Promise<Array<FabricStock>> {
         if (this.processError) {
             try {
-                const result = await this.actor.updateD2CProduct(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+                const result = await this.actor.listFabricStocks();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updateD2CProduct(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+            const result = await this.actor.listFabricStocks();
             return result;
         }
     }
-    async updateGarment(arg0: string, arg1: string, arg2: Array<PatternPiece>): Promise<void> {
+    async listGSTBills(): Promise<Array<GSTBill>> {
         if (this.processError) {
             try {
-                const result = await this.actor.updateGarment(arg0, arg1, arg2);
+                const result = await this.actor.listGSTBills();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updateGarment(arg0, arg1, arg2);
+            const result = await this.actor.listGSTBills();
             return result;
         }
     }
-    async updateMadeToOrder(arg0: bigint, arg1: string, arg2: string, arg3: Measurements, arg4: OrderPriority, arg5: string, arg6: string): Promise<boolean> {
+    async listJobs(): Promise<Array<Job>> {
         if (this.processError) {
             try {
-                const result = await this.actor.updateMadeToOrder(arg0, arg1, arg2, arg3, to_candid_OrderPriority_n1(this._uploadFile, this._downloadFile, arg4), arg5, arg6);
+                const result = await this.actor.listJobs();
+                return from_candid_vec_n33(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.listJobs();
+            return from_candid_vec_n33(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async listKarigarLedgers(): Promise<Array<KarigarLedgerEntry>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.listKarigarLedgers();
+                return from_candid_vec_n34(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.listKarigarLedgers();
+            return from_candid_vec_n34(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async listPhotos(): Promise<Array<Photo>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.listPhotos();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updateMadeToOrder(arg0, arg1, arg2, arg3, to_candid_OrderPriority_n1(this._uploadFile, this._downloadFile, arg4), arg5, arg6);
+            const result = await this.actor.listPhotos();
             return result;
         }
     }
-    async updateOrderStatus(arg0: string, arg1: string): Promise<boolean> {
+    async listProductionPlans(): Promise<Array<ProductionPlan>> {
         if (this.processError) {
             try {
-                const result = await this.actor.updateOrderStatus(arg0, arg1);
+                const result = await this.actor.listProductionPlans();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updateOrderStatus(arg0, arg1);
+            const result = await this.actor.listProductionPlans();
             return result;
         }
     }
-    async updateProductionStatus(arg0: bigint, arg1: ProductionStatus): Promise<boolean> {
+    async listQualityChecks(): Promise<Array<QualityCheck>> {
         if (this.processError) {
             try {
-                const result = await this.actor.updateProductionStatus(arg0, to_candid_ProductionStatus_n28(this._uploadFile, this._downloadFile, arg1));
+                const result = await this.actor.listQualityChecks();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updateProductionStatus(arg0, to_candid_ProductionStatus_n28(this._uploadFile, this._downloadFile, arg1));
+            const result = await this.actor.listQualityChecks();
             return result;
         }
     }
-    async updateSubscriber(arg0: bigint, arg1: string, arg2: string, arg3: bigint, arg4: string, arg5: string, arg6: SubscriberStatus): Promise<boolean> {
+    async updateCompanyProfile(arg0: string, arg1: string, arg2: string, arg3: string, arg4: string, arg5: string): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.updateSubscriber(arg0, arg1, arg2, arg3, arg4, arg5, to_candid_SubscriberStatus_n30(this._uploadFile, this._downloadFile, arg6));
+                const result = await this.actor.updateCompanyProfile(arg0, arg1, arg2, arg3, arg4, arg5);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updateSubscriber(arg0, arg1, arg2, arg3, arg4, arg5, to_candid_SubscriberStatus_n30(this._uploadFile, this._downloadFile, arg6));
-            return result;
-        }
-    }
-    async updateSubscriberStatus(arg0: bigint, arg1: SubscriberStatus): Promise<boolean> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.updateSubscriberStatus(arg0, to_candid_SubscriberStatus_n30(this._uploadFile, this._downloadFile, arg1));
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.updateSubscriberStatus(arg0, to_candid_SubscriberStatus_n30(this._uploadFile, this._downloadFile, arg1));
-            return result;
-        }
-    }
-    async updateSubscriptionPlan(arg0: bigint, arg1: string, arg2: string, arg3: number, arg4: BillingCycle, arg5: Array<string>, arg6: boolean): Promise<boolean> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.updateSubscriptionPlan(arg0, arg1, arg2, arg3, to_candid_BillingCycle_n3(this._uploadFile, this._downloadFile, arg4), arg5, arg6);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.updateSubscriptionPlan(arg0, arg1, arg2, arg3, to_candid_BillingCycle_n3(this._uploadFile, this._downloadFile, arg4), arg5, arg6);
+            const result = await this.actor.updateCompanyProfile(arg0, arg1, arg2, arg3, arg4, arg5);
             return result;
         }
     }
 }
-function from_candid_BillingCycle_n23(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _BillingCycle): BillingCycle {
-    return from_candid_variant_n24(_uploadFile, _downloadFile, value);
+function from_candid_JobStatus_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _JobStatus): JobStatus {
+    return from_candid_variant_n25(_uploadFile, _downloadFile, value);
 }
-function from_candid_MadeToOrder_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _MadeToOrder): MadeToOrder {
-    return from_candid_record_n9(_uploadFile, _downloadFile, value);
+function from_candid_Job_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Job): Job {
+    return from_candid_record_n23(_uploadFile, _downloadFile, value);
 }
-function from_candid_OrderPriority_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _OrderPriority): OrderPriority {
-    return from_candid_variant_n13(_uploadFile, _downloadFile, value);
+function from_candid_KarigarLedgerEntry_n27(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _KarigarLedgerEntry): KarigarLedgerEntry {
+    return from_candid_record_n28(_uploadFile, _downloadFile, value);
 }
-function from_candid_ProductionStatus_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ProductionStatus): ProductionStatus {
-    return from_candid_variant_n11(_uploadFile, _downloadFile, value);
+function from_candid_LedgerEntryType_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _LedgerEntryType): LedgerEntryType {
+    return from_candid_variant_n12(_uploadFile, _downloadFile, value);
 }
-function from_candid_SubscriberStatus_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _SubscriberStatus): SubscriberStatus {
-    return from_candid_variant_n19(_uploadFile, _downloadFile, value);
+function from_candid_LedgerEntry_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _LedgerEntry): LedgerEntry {
+    return from_candid_record_n10(_uploadFile, _downloadFile, value);
 }
-function from_candid_Subscriber_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Subscriber): Subscriber {
-    return from_candid_record_n17(_uploadFile, _downloadFile, value);
-}
-function from_candid_SubscriptionPlan_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _SubscriptionPlan): SubscriptionPlan {
-    return from_candid_record_n22(_uploadFile, _downloadFile, value);
-}
-function from_candid_opt_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Order]): Order | null {
+function from_candid_opt_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Challan]): Challan | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Subscriber]): Subscriber | null {
-    return value.length === 0 ? null : from_candid_Subscriber_n16(_uploadFile, _downloadFile, value[0]);
-}
-function from_candid_opt_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_SubscriptionPlan]): SubscriptionPlan | null {
-    return value.length === 0 ? null : from_candid_SubscriptionPlan_n21(_uploadFile, _downloadFile, value[0]);
-}
-function from_candid_opt_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Customer]): Customer | null {
+function from_candid_opt_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_CompanyProfile]): CompanyProfile | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_D2CProduct]): D2CProduct | null {
+function from_candid_opt_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Design]): Design | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_MadeToOrder]): MadeToOrder | null {
-    return value.length === 0 ? null : from_candid_MadeToOrder_n8(_uploadFile, _downloadFile, value[0]);
+function from_candid_opt_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Dispatch]): Dispatch | null {
+    return value.length === 0 ? null : value[0];
 }
-function from_candid_record_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_opt_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_FabricIssue]): FabricIssue | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_FabricPurchase]): FabricPurchase | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_FabricStock]): FabricStock | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_GSTBill]): GSTBill | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Job]): Job | null {
+    return value.length === 0 ? null : from_candid_Job_n22(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_opt_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_KarigarLedgerEntry]): KarigarLedgerEntry | null {
+    return value.length === 0 ? null : from_candid_KarigarLedgerEntry_n27(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_opt_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Photo]): Photo | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_ProductionPlan]): ProductionPlan | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n32(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_QualityCheck]): QualityCheck | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_LedgerEntry]): LedgerEntry | null {
+    return value.length === 0 ? null : from_candid_LedgerEntry_n9(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_record_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: bigint;
-    status: _SubscriberStatus;
-    planId: bigint;
-    name: string;
-    createdAt: bigint;
-    phone: string;
-    planName: string;
-    startDate: string;
+    entryType: _LedgerEntryType;
+    date: bigint;
+    description: string;
+    category: string;
+    amount: number;
 }): {
     id: bigint;
-    status: SubscriberStatus;
-    planId: bigint;
-    name: string;
-    createdAt: bigint;
-    phone: string;
-    planName: string;
-    startDate: string;
+    entryType: LedgerEntryType;
+    date: bigint;
+    description: string;
+    category: string;
+    amount: number;
 } {
     return {
         id: value.id,
-        status: from_candid_SubscriberStatus_n18(_uploadFile, _downloadFile, value.status),
-        planId: value.planId,
-        name: value.name,
-        createdAt: value.createdAt,
-        phone: value.phone,
-        planName: value.planName,
-        startDate: value.startDate
-    };
-}
-function from_candid_record_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    id: bigint;
-    name: string;
-    createdAt: bigint;
-    description: string;
-    isActive: boolean;
-    billingCycle: _BillingCycle;
-    price: number;
-    includedServices: Array<string>;
-}): {
-    id: bigint;
-    name: string;
-    createdAt: bigint;
-    description: string;
-    isActive: boolean;
-    billingCycle: BillingCycle;
-    price: number;
-    includedServices: Array<string>;
-} {
-    return {
-        id: value.id,
-        name: value.name,
-        createdAt: value.createdAt,
+        entryType: from_candid_LedgerEntryType_n11(_uploadFile, _downloadFile, value.entryType),
+        date: value.date,
         description: value.description,
-        isActive: value.isActive,
-        billingCycle: from_candid_BillingCycle_n23(_uploadFile, _downloadFile, value.billingCycle),
-        price: value.price,
-        includedServices: value.includedServices
+        category: value.category,
+        amount: value.amount
     };
 }
-function from_candid_record_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_record_n23(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: bigint;
-    customerName: string;
-    deliveryDeadline: string;
-    createdAt: bigint;
-    garmentName: string;
-    measurements: _Measurements;
-    productionStatus: _ProductionStatus;
-    notes: string;
-    priority: _OrderPriority;
+    status: _JobStatus;
+    date: bigint;
+    rate: number;
+    karigarName: string;
+    style: string;
+    quantity: bigint;
+    partyName: string;
+    amount: number;
+    jobNumber: string;
+    fabricLot: string;
 }): {
     id: bigint;
-    customerName: string;
-    deliveryDeadline: string;
-    createdAt: bigint;
-    garmentName: string;
-    measurements: Measurements;
-    productionStatus: ProductionStatus;
-    notes: string;
-    priority: OrderPriority;
+    status: JobStatus;
+    date: bigint;
+    rate: number;
+    karigarName: string;
+    style: string;
+    quantity: bigint;
+    partyName: string;
+    amount: number;
+    jobNumber: string;
+    fabricLot: string;
 } {
     return {
         id: value.id,
-        customerName: value.customerName,
-        deliveryDeadline: value.deliveryDeadline,
-        createdAt: value.createdAt,
-        garmentName: value.garmentName,
-        measurements: value.measurements,
-        productionStatus: from_candid_ProductionStatus_n10(_uploadFile, _downloadFile, value.productionStatus),
-        notes: value.notes,
-        priority: from_candid_OrderPriority_n12(_uploadFile, _downloadFile, value.priority)
+        status: from_candid_JobStatus_n24(_uploadFile, _downloadFile, value.status),
+        date: value.date,
+        rate: value.rate,
+        karigarName: value.karigarName,
+        style: value.style,
+        quantity: value.quantity,
+        partyName: value.partyName,
+        amount: value.amount,
+        jobNumber: value.jobNumber,
+        fabricLot: value.fabricLot
     };
 }
-function from_candid_variant_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    Queued: null;
-} | {
-    Stitching: null;
-} | {
-    QualityCheck: null;
-} | {
-    Ready: null;
-} | {
-    Cutting: null;
-}): ProductionStatus {
-    return "Queued" in value ? ProductionStatus.Queued : "Stitching" in value ? ProductionStatus.Stitching : "QualityCheck" in value ? ProductionStatus.QualityCheck : "Ready" in value ? ProductionStatus.Ready : "Cutting" in value ? ProductionStatus.Cutting : value;
+function from_candid_record_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: bigint;
+    balance: number;
+    entries: Array<_LedgerEntry>;
+    karigarName: string;
+}): {
+    id: bigint;
+    balance: number;
+    entries: Array<LedgerEntry>;
+    karigarName: string;
+} {
+    return {
+        id: value.id,
+        balance: value.balance,
+        entries: from_candid_vec_n29(_uploadFile, _downloadFile, value.entries),
+        karigarName: value.karigarName
+    };
 }
-function from_candid_variant_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    Low: null;
+function from_candid_variant_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    Debit: null;
 } | {
-    High: null;
+    Credit: null;
+}): LedgerEntryType {
+    return "Debit" in value ? LedgerEntryType.Debit : "Credit" in value ? LedgerEntryType.Credit : value;
+}
+function from_candid_variant_n25(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    InProgress: null;
 } | {
-    Normal: null;
-}): OrderPriority {
-    return "Low" in value ? OrderPriority.Low : "High" in value ? OrderPriority.High : "Normal" in value ? OrderPriority.Normal : value;
-}
-function from_candid_variant_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    Paused: null;
+    Completed: null;
 } | {
-    Active: null;
-} | {
-    Cancelled: null;
-}): SubscriberStatus {
-    return "Paused" in value ? SubscriberStatus.Paused : "Active" in value ? SubscriberStatus.Active : "Cancelled" in value ? SubscriberStatus.Cancelled : value;
+    Pending: null;
+}): JobStatus {
+    return "InProgress" in value ? JobStatus.InProgress : "Completed" in value ? JobStatus.Completed : "Pending" in value ? JobStatus.Pending : value;
 }
-function from_candid_variant_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    Quarterly: null;
-} | {
-    Monthly: null;
-} | {
-    Yearly: null;
-}): BillingCycle {
-    return "Quarterly" in value ? BillingCycle.Quarterly : "Monthly" in value ? BillingCycle.Monthly : "Yearly" in value ? BillingCycle.Yearly : value;
+function from_candid_vec_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_LedgerEntry>): Array<LedgerEntry> {
+    return value.map((x)=>from_candid_LedgerEntry_n9(_uploadFile, _downloadFile, x));
 }
-function from_candid_vec_n25(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_MadeToOrder>): Array<MadeToOrder> {
-    return value.map((x)=>from_candid_MadeToOrder_n8(_uploadFile, _downloadFile, x));
+function from_candid_vec_n33(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Job>): Array<Job> {
+    return value.map((x)=>from_candid_Job_n22(_uploadFile, _downloadFile, x));
 }
-function from_candid_vec_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Subscriber>): Array<Subscriber> {
-    return value.map((x)=>from_candid_Subscriber_n16(_uploadFile, _downloadFile, x));
+function from_candid_vec_n34(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_KarigarLedgerEntry>): Array<KarigarLedgerEntry> {
+    return value.map((x)=>from_candid_KarigarLedgerEntry_n27(_uploadFile, _downloadFile, x));
 }
-function from_candid_vec_n27(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_SubscriptionPlan>): Array<SubscriptionPlan> {
-    return value.map((x)=>from_candid_SubscriptionPlan_n21(_uploadFile, _downloadFile, x));
-}
-function to_candid_BillingCycle_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: BillingCycle): _BillingCycle {
+function to_candid_JobStatus_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: JobStatus): _JobStatus {
     return to_candid_variant_n4(_uploadFile, _downloadFile, value);
 }
-function to_candid_OrderPriority_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: OrderPriority): _OrderPriority {
+function to_candid_LedgerEntryType_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: LedgerEntryType): _LedgerEntryType {
     return to_candid_variant_n2(_uploadFile, _downloadFile, value);
 }
-function to_candid_ProductionStatus_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ProductionStatus): _ProductionStatus {
-    return to_candid_variant_n29(_uploadFile, _downloadFile, value);
+function to_candid_LedgerEntry_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: LedgerEntry): _LedgerEntry {
+    return to_candid_record_n7(_uploadFile, _downloadFile, value);
 }
-function to_candid_SubscriberStatus_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: SubscriberStatus): _SubscriberStatus {
-    return to_candid_variant_n31(_uploadFile, _downloadFile, value);
-}
-function to_candid_variant_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: OrderPriority): {
-    Low: null;
-} | {
-    High: null;
-} | {
-    Normal: null;
+function to_candid_record_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: bigint;
+    entryType: LedgerEntryType;
+    date: bigint;
+    description: string;
+    category: string;
+    amount: number;
+}): {
+    id: bigint;
+    entryType: _LedgerEntryType;
+    date: bigint;
+    description: string;
+    category: string;
+    amount: number;
 } {
-    return value == OrderPriority.Low ? {
-        Low: null
-    } : value == OrderPriority.High ? {
-        High: null
-    } : value == OrderPriority.Normal ? {
-        Normal: null
+    return {
+        id: value.id,
+        entryType: to_candid_LedgerEntryType_n1(_uploadFile, _downloadFile, value.entryType),
+        date: value.date,
+        description: value.description,
+        category: value.category,
+        amount: value.amount
+    };
+}
+function to_candid_variant_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: LedgerEntryType): {
+    Debit: null;
+} | {
+    Credit: null;
+} {
+    return value == LedgerEntryType.Debit ? {
+        Debit: null
+    } : value == LedgerEntryType.Credit ? {
+        Credit: null
     } : value;
 }
-function to_candid_variant_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ProductionStatus): {
-    Queued: null;
+function to_candid_variant_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: JobStatus): {
+    InProgress: null;
 } | {
-    Stitching: null;
+    Completed: null;
 } | {
-    QualityCheck: null;
-} | {
-    Ready: null;
-} | {
-    Cutting: null;
+    Pending: null;
 } {
-    return value == ProductionStatus.Queued ? {
-        Queued: null
-    } : value == ProductionStatus.Stitching ? {
-        Stitching: null
-    } : value == ProductionStatus.QualityCheck ? {
-        QualityCheck: null
-    } : value == ProductionStatus.Ready ? {
-        Ready: null
-    } : value == ProductionStatus.Cutting ? {
-        Cutting: null
+    return value == JobStatus.InProgress ? {
+        InProgress: null
+    } : value == JobStatus.Completed ? {
+        Completed: null
+    } : value == JobStatus.Pending ? {
+        Pending: null
     } : value;
 }
-function to_candid_variant_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: SubscriberStatus): {
-    Paused: null;
-} | {
-    Active: null;
-} | {
-    Cancelled: null;
-} {
-    return value == SubscriberStatus.Paused ? {
-        Paused: null
-    } : value == SubscriberStatus.Active ? {
-        Active: null
-    } : value == SubscriberStatus.Cancelled ? {
-        Cancelled: null
-    } : value;
-}
-function to_candid_variant_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: BillingCycle): {
-    Quarterly: null;
-} | {
-    Monthly: null;
-} | {
-    Yearly: null;
-} {
-    return value == BillingCycle.Quarterly ? {
-        Quarterly: null
-    } : value == BillingCycle.Monthly ? {
-        Monthly: null
-    } : value == BillingCycle.Yearly ? {
-        Yearly: null
-    } : value;
+function to_candid_vec_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<LedgerEntry>): Array<_LedgerEntry> {
+    return value.map((x)=>to_candid_LedgerEntry_n6(_uploadFile, _downloadFile, x));
 }
 export interface CreateActorOptions {
     agent?: Agent;

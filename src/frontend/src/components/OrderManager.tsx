@@ -42,7 +42,7 @@ import { ClipboardList, Loader2, Plus, Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
-import type { Order } from "../backend.d";
+import type { Order } from "../legacy-types";
 
 const STATUS_OPTIONS = ["Pending", "In Progress", "Completed", "Delivered"];
 const FILTER_OPTIONS = ["All", ...STATUS_OPTIONS];
@@ -54,8 +54,8 @@ const STATUS_COLORS: Record<string, string> = {
   Delivered: "bg-purple-100 text-purple-800 border-purple-200",
 };
 
-function formatDate(ts: bigint) {
-  return new Date(Number(ts) / 1_000_000).toLocaleDateString("en-IN", {
+function formatDate(ts: number) {
+  return new Date(ts / 1_000_000).toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "short",
     year: "numeric",

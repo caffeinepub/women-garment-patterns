@@ -22,14 +22,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Factory, Loader2, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { OrderPriority, ProductionStatus } from "../backend.d";
-import type { MadeToOrder } from "../backend.d";
 import {
   useCreateMadeToOrder,
   useDeleteMadeToOrder,
   useListMadeToOrder,
   useUpdateProductionStatus,
 } from "../hooks/useQueries";
+import { OrderPriority, ProductionStatus } from "../legacy-types";
+import type { MadeToOrder } from "../legacy-types";
 
 const PRIORITY_STYLES: Record<OrderPriority, string> = {
   [OrderPriority.High]: "bg-red-100 text-red-700 border-red-200",

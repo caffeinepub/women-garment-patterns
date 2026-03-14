@@ -40,7 +40,7 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
-import type { Customer } from "../backend.d";
+import type { Customer } from "../legacy-types";
 
 interface CustomerFormData {
   name: string;

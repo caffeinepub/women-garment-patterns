@@ -10,180 +10,227 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export type BillingCycle = { 'Quarterly' : null } |
-  { 'Monthly' : null } |
-  { 'Yearly' : null };
-export interface Customer {
-  'id' : string,
-  'hip' : number,
-  'bust' : number,
-  'name' : string,
-  'createdAt' : bigint,
-  'length' : number,
-  'phone' : string,
-  'waist' : number,
+export interface BillLineItem {
+  'qty' : bigint,
+  'rate' : number,
+  'description' : string,
+  'gstPercentage' : number,
 }
-export interface D2CProduct {
+export interface Challan {
   'id' : bigint,
-  'inStock' : boolean,
+  'challanNumber' : string,
+  'jobType' : string,
+  'date' : bigint,
+  'partyName' : string,
+  'items' : Array<ChallanItem>,
+}
+export interface ChallanItem { 'qty' : bigint, 'description' : string }
+export interface CompanyProfile {
+  'bankDetails' : string,
+  'gstNumber' : string,
+  'name' : string,
+  'email' : string,
+  'address' : string,
+  'phone' : string,
+}
+export interface Design {
+  'id' : bigint,
   'fabricType' : string,
   'name' : string,
-  'createdAt' : bigint,
   'description' : string,
-  'sizesAvailable' : Array<string>,
-  'price' : number,
+  'season' : string,
+  'number' : string,
+  'category' : string,
 }
-export interface GarmentType {
-  'patternPieces' : Array<PatternPiece>,
-  'name' : string,
-  'description' : string,
-}
-export interface MadeToOrder {
+export interface Dispatch {
   'id' : bigint,
-  'customerName' : string,
-  'deliveryDeadline' : string,
-  'createdAt' : bigint,
-  'garmentName' : string,
-  'measurements' : Measurements,
-  'productionStatus' : ProductionStatus,
-  'notes' : string,
-  'priority' : OrderPriority,
-}
-export interface Measurements {
-  'hip' : number,
-  'bust' : number,
-  'length' : number,
-  'waist' : number,
-}
-export interface Order {
-  'id' : string,
-  'hip' : number,
-  'customerName' : string,
   'status' : string,
-  'bust' : number,
-  'createdAt' : bigint,
-  'garmentName' : string,
-  'length' : number,
-  'notes' : string,
-  'waist' : number,
+  'trackingNumber' : string,
+  'date' : bigint,
+  'style' : string,
+  'quantity' : bigint,
+  'transportName' : string,
+  'buyerName' : string,
 }
-export type OrderPriority = { 'Low' : null } |
-  { 'High' : null } |
-  { 'Normal' : null };
-export interface PatternPiece {
-  'name' : string,
-  'instructions' : string,
-  'cutOnFold' : boolean,
-}
-export type ProductionStatus = { 'Queued' : null } |
-  { 'Stitching' : null } |
-  { 'QualityCheck' : null } |
-  { 'Ready' : null } |
-  { 'Cutting' : null };
-export interface Subscriber {
+export interface FabricIssue {
   'id' : bigint,
-  'status' : SubscriberStatus,
-  'planId' : bigint,
-  'name' : string,
-  'createdAt' : bigint,
-  'phone' : string,
-  'planName' : string,
-  'startDate' : string,
+  'meters' : number,
+  'fabricType' : string,
+  'date' : bigint,
+  'issuedTo' : string,
 }
-export type SubscriberStatus = { 'Paused' : null } |
-  { 'Active' : null } |
-  { 'Cancelled' : null };
-export interface SubscriptionPlan {
+export interface FabricPurchase {
   'id' : bigint,
-  'name' : string,
-  'createdAt' : bigint,
+  'meters' : number,
+  'fabricType' : string,
+  'date' : bigint,
+  'color' : string,
+  'rate' : number,
+  'invoiceNumber' : string,
+  'vendor' : string,
+  'amount' : number,
+}
+export interface FabricStock {
+  'fabricType' : string,
+  'color' : string,
+  'availableMeters' : number,
+  'issuedMeters' : number,
+  'totalMeters' : number,
+}
+export interface GSTBill {
+  'id' : bigint,
+  'lineItems' : Array<BillLineItem>,
+  'total' : number,
+  'date' : bigint,
+  'billNumber' : string,
+  'buyerGST' : string,
+  'buyerName' : string,
+}
+export interface Job {
+  'id' : bigint,
+  'status' : JobStatus,
+  'date' : bigint,
+  'rate' : number,
+  'karigarName' : string,
+  'style' : string,
+  'quantity' : bigint,
+  'partyName' : string,
+  'amount' : number,
+  'jobNumber' : string,
+  'fabricLot' : string,
+}
+export type JobStatus = { 'InProgress' : null } |
+  { 'Completed' : null } |
+  { 'Pending' : null };
+export interface KarigarLedgerEntry {
+  'id' : bigint,
+  'balance' : number,
+  'entries' : Array<LedgerEntry>,
+  'karigarName' : string,
+}
+export interface LedgerEntry {
+  'id' : bigint,
+  'entryType' : LedgerEntryType,
+  'date' : bigint,
   'description' : string,
-  'isActive' : boolean,
-  'billingCycle' : BillingCycle,
-  'price' : number,
-  'includedServices' : Array<string>,
+  'category' : string,
+  'amount' : number,
+}
+export type LedgerEntryType = { 'Debit' : null } |
+  { 'Credit' : null };
+export interface Photo {
+  'id' : bigint,
+  'date' : bigint,
+  'category' : string,
+  'photoLabel' : string,
+}
+export interface ProductionPlan {
+  'id' : bigint,
+  'stages' : Array<ProductionStage>,
+  'deliveryDate' : bigint,
+  'styleName' : string,
+  'totalQuantity' : bigint,
+}
+export interface ProductionStage {
+  'completionDate' : bigint,
+  'assignedKarigar' : string,
+  'targetQuantity' : bigint,
+  'stageName' : string,
+}
+export interface QualityCheck {
+  'id' : bigint,
+  'jobType' : string,
+  'date' : bigint,
+  'passCount' : bigint,
+  'jobReference' : string,
+  'failCount' : bigint,
+  'remarks' : string,
+  'inspector' : string,
 }
 export interface _SERVICE {
-  'addCustomer' : ActorMethod<
-    [string, string, number, number, number, number],
-    string
-  >,
-  'calculatePattern' : ActorMethod<
-    [string, Measurements],
-    Array<[PatternPiece, Measurements]>
-  >,
-  'createD2CProduct' : ActorMethod<
-    [string, string, number, string, Array<string>, boolean],
+  'addAccountLedgerEntry' : ActorMethod<
+    [LedgerEntryType, string, number, string, bigint],
     bigint
   >,
-  'createGarment' : ActorMethod<
-    [string, string, Array<PatternPiece>],
+  'addChallan' : ActorMethod<
+    [string, string, string, Array<ChallanItem>, bigint],
+    bigint
+  >,
+  'addDesign' : ActorMethod<
+    [string, string, string, string, string, string],
+    bigint
+  >,
+  'addDispatch' : ActorMethod<
+    [string, string, bigint, string, string, string, bigint],
+    bigint
+  >,
+  'addFabricPurchase' : ActorMethod<
+    [string, string, string, number, number, number, string, bigint],
+    bigint
+  >,
+  'addGSTBill' : ActorMethod<
+    [string, string, string, bigint, Array<BillLineItem>, number],
+    bigint
+  >,
+  'addJob' : ActorMethod<
+    [
+      string,
+      string,
+      string,
+      string,
+      bigint,
+      number,
+      number,
+      string,
+      JobStatus,
+      bigint,
+    ],
+    bigint
+  >,
+  'addKarigarLedgerEntry' : ActorMethod<
+    [string, Array<LedgerEntry>, number],
+    bigint
+  >,
+  'addPhoto' : ActorMethod<[string, string, bigint], bigint>,
+  'addProductionPlan' : ActorMethod<
+    [string, bigint, bigint, Array<ProductionStage>],
+    bigint
+  >,
+  'addQualityCheck' : ActorMethod<
+    [string, string, string, bigint, bigint, string, bigint],
+    bigint
+  >,
+  'getAccountLedgerEntry' : ActorMethod<[bigint], [] | [LedgerEntry]>,
+  'getChallan' : ActorMethod<[bigint], [] | [Challan]>,
+  'getCompanyProfile' : ActorMethod<[], [] | [CompanyProfile]>,
+  'getDesign' : ActorMethod<[bigint], [] | [Design]>,
+  'getDispatch' : ActorMethod<[bigint], [] | [Dispatch]>,
+  'getFabricIssue' : ActorMethod<[bigint], [] | [FabricIssue]>,
+  'getFabricPurchase' : ActorMethod<[bigint], [] | [FabricPurchase]>,
+  'getFabricStock' : ActorMethod<[string], [] | [FabricStock]>,
+  'getGSTBill' : ActorMethod<[bigint], [] | [GSTBill]>,
+  'getJob' : ActorMethod<[bigint], [] | [Job]>,
+  'getKarigarLedger' : ActorMethod<[bigint], [] | [KarigarLedgerEntry]>,
+  'getPhoto' : ActorMethod<[bigint], [] | [Photo]>,
+  'getProductionPlan' : ActorMethod<[bigint], [] | [ProductionPlan]>,
+  'getQualityCheck' : ActorMethod<[bigint], [] | [QualityCheck]>,
+  'issueFabric' : ActorMethod<[string, number, string, bigint], bigint>,
+  'listAccountLedgerEntries' : ActorMethod<[], Array<LedgerEntry>>,
+  'listChallans' : ActorMethod<[], Array<Challan>>,
+  'listDesigns' : ActorMethod<[], Array<Design>>,
+  'listDispatches' : ActorMethod<[], Array<Dispatch>>,
+  'listFabricIssues' : ActorMethod<[], Array<FabricIssue>>,
+  'listFabricPurchases' : ActorMethod<[], Array<FabricPurchase>>,
+  'listFabricStocks' : ActorMethod<[], Array<FabricStock>>,
+  'listGSTBills' : ActorMethod<[], Array<GSTBill>>,
+  'listJobs' : ActorMethod<[], Array<Job>>,
+  'listKarigarLedgers' : ActorMethod<[], Array<KarigarLedgerEntry>>,
+  'listPhotos' : ActorMethod<[], Array<Photo>>,
+  'listProductionPlans' : ActorMethod<[], Array<ProductionPlan>>,
+  'listQualityChecks' : ActorMethod<[], Array<QualityCheck>>,
+  'updateCompanyProfile' : ActorMethod<
+    [string, string, string, string, string, string],
     undefined
-  >,
-  'createMadeToOrder' : ActorMethod<
-    [string, string, Measurements, OrderPriority, string, string],
-    bigint
-  >,
-  'createOrder' : ActorMethod<
-    [string, string, number, number, number, number, string],
-    string
-  >,
-  'createSubscriber' : ActorMethod<
-    [string, string, bigint, string, string],
-    bigint
-  >,
-  'createSubscriptionPlan' : ActorMethod<
-    [string, string, number, BillingCycle, Array<string>],
-    bigint
-  >,
-  'deleteCustomer' : ActorMethod<[string], boolean>,
-  'deleteD2CProduct' : ActorMethod<[bigint], boolean>,
-  'deleteGarment' : ActorMethod<[string], undefined>,
-  'deleteMadeToOrder' : ActorMethod<[bigint], boolean>,
-  'deleteOrder' : ActorMethod<[string], boolean>,
-  'deleteSubscriber' : ActorMethod<[bigint], boolean>,
-  'deleteSubscriptionPlan' : ActorMethod<[bigint], boolean>,
-  'getCustomer' : ActorMethod<[string], [] | [Customer]>,
-  'getD2CProduct' : ActorMethod<[bigint], [] | [D2CProduct]>,
-  'getGarment' : ActorMethod<[string], GarmentType>,
-  'getMadeToOrder' : ActorMethod<[bigint], [] | [MadeToOrder]>,
-  'getOrder' : ActorMethod<[string], [] | [Order]>,
-  'getSubscriber' : ActorMethod<[bigint], [] | [Subscriber]>,
-  'getSubscriptionPlan' : ActorMethod<[bigint], [] | [SubscriptionPlan]>,
-  'listCustomers' : ActorMethod<[], Array<Customer>>,
-  'listD2CProducts' : ActorMethod<[], Array<D2CProduct>>,
-  'listGarments' : ActorMethod<[], Array<GarmentType>>,
-  'listMadeToOrder' : ActorMethod<[], Array<MadeToOrder>>,
-  'listOrders' : ActorMethod<[], Array<Order>>,
-  'listOrdersByStatus' : ActorMethod<[string], Array<Order>>,
-  'listSubscribers' : ActorMethod<[], Array<Subscriber>>,
-  'listSubscriptionPlans' : ActorMethod<[], Array<SubscriptionPlan>>,
-  'updateCustomer' : ActorMethod<
-    [string, string, string, number, number, number, number],
-    boolean
-  >,
-  'updateD2CProduct' : ActorMethod<
-    [bigint, string, string, number, string, Array<string>, boolean],
-    boolean
-  >,
-  'updateGarment' : ActorMethod<
-    [string, string, Array<PatternPiece>],
-    undefined
-  >,
-  'updateMadeToOrder' : ActorMethod<
-    [bigint, string, string, Measurements, OrderPriority, string, string],
-    boolean
-  >,
-  'updateOrderStatus' : ActorMethod<[string, string], boolean>,
-  'updateProductionStatus' : ActorMethod<[bigint, ProductionStatus], boolean>,
-  'updateSubscriber' : ActorMethod<
-    [bigint, string, string, bigint, string, string, SubscriberStatus],
-    boolean
-  >,
-  'updateSubscriberStatus' : ActorMethod<[bigint, SubscriberStatus], boolean>,
-  'updateSubscriptionPlan' : ActorMethod<
-    [bigint, string, string, number, BillingCycle, Array<string>, boolean],
-    boolean
   >,
 }
 export declare const idlService: IDL.ServiceClass;

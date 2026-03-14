@@ -55,13 +55,13 @@ import {
 import { motion } from "motion/react";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
-import type { GarmentType, PatternPiece } from "../backend.d";
 import {
   useCreateGarment,
   useDeleteGarment,
   useListGarments,
   useUpdateGarment,
 } from "../hooks/useQueries";
+import type { GarmentType, PatternPiece } from "../legacy-types";
 
 const DEFAULT_PIECES: PatternPiece[] = [
   { name: "Front Body", instructions: "Cut 1 on fold", cutOnFold: true },

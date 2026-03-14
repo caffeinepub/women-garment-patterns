@@ -16,13 +16,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Edit, Loader2, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import type { D2CProduct } from "../backend.d";
 import {
   useCreateD2CProduct,
   useDeleteD2CProduct,
   useListD2CProducts,
   useUpdateD2CProduct,
 } from "../hooks/useQueries";
+import type { D2CProduct } from "../legacy-types";
 
 type FormState = {
   name: string;

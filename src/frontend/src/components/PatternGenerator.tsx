@@ -9,11 +9,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ImagePlus, RefreshCw, Ruler, Scissors, X } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ImagePlus, Link, RefreshCw, Ruler, Scissors, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useRef, useState } from "react";
-import type { Measurements } from "../backend.d";
 import { useCalculatePattern, useListGarments } from "../hooks/useQueries";
+import type { Measurements } from "../legacy-types";
 import { PatternDiagram } from "./PatternDiagram";
 
 const DEFAULT_MEASUREMENTS: Measurements = {
@@ -47,24 +48,30 @@ const MEASUREMENT_FIELDS = [
 ];
 
 function PhotoUpload() {
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  // File upload state
+  const [filePhotoUrl, setFilePhotoUrl] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // URL state
+  const [urlInput, setUrlInput] = useState("");
+  const [urlPhotoUrl, setUrlPhotoUrl] = useState<string | null>(null);
+  const [urlError, setUrlError] = useState(false);
+
   const handleFile = useCallback(
     (file: File) => {
       if (!file.type.match(/image\/(jpeg|png)/)) return;
-      if (photoUrl) URL.revokeObjectURL(photoUrl);
-      setPhotoUrl(URL.createObjectURL(file));
+      if (filePhotoUrl) URL.revokeObjectURL(filePhotoUrl);
+      setFilePhotoUrl(URL.createObjectURL(file));
       setFileName(file.name);
     },
-    [photoUrl],
+    [filePhotoUrl],
   );
 
-  function handleRemove() {
-    if (photoUrl) URL.revokeObjectURL(photoUrl);
-    setPhotoUrl(null);
+  function handleFileRemove() {
+    if (filePhotoUrl) URL.revokeObjectURL(filePhotoUrl);
+    setFilePhotoUrl(null);
     setFileName(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
@@ -81,90 +88,222 @@ function PhotoUpload() {
     if (file) handleFile(file);
   }
 
+  function handleLoadUrl() {
+    const trimmed = urlInput.trim();
+    if (!trimmed) return;
+    setUrlError(false);
+    setUrlPhotoUrl(trimmed);
+  }
+
+  function handleUrlRemove() {
+    setUrlPhotoUrl(null);
+    setUrlInput("");
+    setUrlError(false);
+  }
+
+  function handleTabChange() {
+    // Clear file state when switching to URL tab and vice versa
+    handleFileRemove();
+    handleUrlRemove();
+  }
+
   return (
     <div className="space-y-2">
       <div>
         <Label className="text-sm font-semibold text-foreground">
-          Reference Photo (JPG/PNG)
+          Reference Photo
         </Label>
         <p className="text-xs text-muted-foreground mt-0.5">
-          Upload garment photo as cutting reference
+          Garment photo ko reference ke liye upload karein ya URL paste karein
         </p>
       </div>
 
-      {photoUrl ? (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.97 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="relative rounded-xl overflow-hidden border border-border/60 bg-muted/20"
-        >
-          <img
-            src={photoUrl}
-            alt="Reference garment"
-            className="w-full object-contain rounded-xl"
-            style={{ maxHeight: 200 }}
-          />
-          <div className="absolute bottom-0 left-0 right-0 bg-black/50 backdrop-blur-sm px-3 py-2 flex items-center justify-between">
-            <span className="text-white text-xs truncate max-w-[200px]">
-              {fileName}
-            </span>
-            <button
-              type="button"
-              data-ocid="generator.photo.delete_button"
-              onClick={handleRemove}
-              className="text-white/80 hover:text-white transition-colors ml-2 flex-shrink-0"
-              aria-label="Remove photo"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </motion.div>
-      ) : (
-        <div
-          data-ocid="generator.photo.dropzone"
-          aria-label="Photo upload dropzone"
-          onDragOver={(e) => {
-            e.preventDefault();
-            setIsDragging(true);
-          }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
-          onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-colors ${
-            isDragging
-              ? "border-primary bg-primary/5"
-              : "border-border/60 hover:border-primary/50 hover:bg-muted/30"
-          }`}
-        >
-          <ImagePlus className="w-7 h-7 text-muted-foreground mx-auto mb-2" />
-          <p className="text-sm text-muted-foreground">
-            Drag & drop or{" "}
-            <button
-              type="button"
-              data-ocid="generator.photo.upload_button"
-              onClick={(e) => {
-                e.stopPropagation();
-                fileInputRef.current?.click();
-              }}
-              className="text-primary font-medium hover:underline focus:outline-none"
-            >
-              browse
-            </button>
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            JPG and PNG supported
-          </p>
-        </div>
-      )}
+      <Tabs defaultValue="file" onValueChange={handleTabChange}>
+        <TabsList className="w-full mb-3">
+          <TabsTrigger
+            value="file"
+            data-ocid="generator.file.tab"
+            className="flex-1 gap-1.5"
+          >
+            <ImagePlus className="w-3.5 h-3.5" />
+            File Upload
+          </TabsTrigger>
+          <TabsTrigger
+            value="url"
+            data-ocid="generator.url.tab"
+            className="flex-1 gap-1.5"
+          >
+            <Link className="w-3.5 h-3.5" />
+            Image URL
+          </TabsTrigger>
+        </TabsList>
 
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/jpeg,image/png"
-        className="hidden"
-        onChange={handleInputChange}
-      />
+        {/* ── File Upload Tab ── */}
+        <TabsContent value="file" className="mt-0">
+          {filePhotoUrl ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="relative rounded-xl overflow-hidden border border-border/60 bg-muted/20"
+            >
+              <img
+                src={filePhotoUrl}
+                alt="Reference garment"
+                className="w-full object-contain rounded-xl"
+                style={{ maxHeight: 200 }}
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-black/50 backdrop-blur-sm px-3 py-2 flex items-center justify-between">
+                <span className="text-white text-xs truncate max-w-[200px]">
+                  {fileName}
+                </span>
+                <button
+                  type="button"
+                  data-ocid="generator.photo.delete_button"
+                  onClick={handleFileRemove}
+                  className="text-white/80 hover:text-white transition-colors ml-2 flex-shrink-0"
+                  aria-label="Remove photo"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </motion.div>
+          ) : (
+            <div
+              data-ocid="generator.photo.dropzone"
+              aria-label="Photo upload dropzone"
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              onKeyDown={(e) =>
+                e.key === "Enter" && fileInputRef.current?.click()
+              }
+              className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-colors ${
+                isDragging
+                  ? "border-primary bg-primary/5"
+                  : "border-border/60 hover:border-primary/50 hover:bg-muted/30"
+              }`}
+            >
+              <ImagePlus className="w-7 h-7 text-muted-foreground mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">
+                Drag & drop ya{" "}
+                <button
+                  type="button"
+                  data-ocid="generator.photo.upload_button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
+                  className="text-primary font-medium hover:underline focus:outline-none"
+                >
+                  browse karein
+                </button>
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                JPG aur PNG supported
+              </p>
+            </div>
+          )}
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png"
+            className="hidden"
+            onChange={handleInputChange}
+          />
+        </TabsContent>
+
+        {/* ── URL Tab ── */}
+        <TabsContent value="url" className="mt-0 space-y-3">
+          <div className="flex gap-2">
+            <Input
+              data-ocid="generator.url.input"
+              type="url"
+              placeholder="Image URL yahan paste karein..."
+              value={urlInput}
+              onChange={(e) => {
+                setUrlInput(e.target.value);
+                setUrlError(false);
+              }}
+              onKeyDown={(e) => e.key === "Enter" && handleLoadUrl()}
+              className="bg-background flex-1"
+            />
+            <Button
+              data-ocid="generator.url.button"
+              type="button"
+              onClick={handleLoadUrl}
+              disabled={!urlInput.trim()}
+              variant="secondary"
+              className="shrink-0"
+            >
+              Load
+            </Button>
+          </div>
+
+          {urlError && (
+            <motion.p
+              data-ocid="generator.url.error_state"
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-xs text-destructive bg-destructive/10 rounded-lg px-3 py-2"
+            >
+              ⚠️ Image load nahi hui. URL check karein ya doosra URL try karein.
+            </motion.p>
+          )}
+
+          <AnimatePresence>
+            {urlPhotoUrl && !urlError && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.97 }}
+                className="relative rounded-xl overflow-hidden border border-border/60 bg-muted/20"
+              >
+                <img
+                  src={urlPhotoUrl}
+                  alt="URL reference garment"
+                  className="w-full object-contain rounded-xl"
+                  style={{ maxHeight: 200 }}
+                  onError={() => {
+                    setUrlError(true);
+                    setUrlPhotoUrl(null);
+                  }}
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-black/50 backdrop-blur-sm px-3 py-2 flex items-center justify-between">
+                  <span className="text-white text-xs truncate max-w-[220px]">
+                    {urlPhotoUrl}
+                  </span>
+                  <button
+                    type="button"
+                    data-ocid="generator.url.delete_button"
+                    onClick={handleUrlRemove}
+                    className="text-white/80 hover:text-white transition-colors ml-2 flex-shrink-0"
+                    aria-label="Remove URL image"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {!urlPhotoUrl && !urlError && (
+            <div className="border-2 border-dashed border-border/60 rounded-xl p-5 text-center">
+              <Link className="w-7 h-7 text-muted-foreground mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">
+                Kisi bhi website se image URL paste karein
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Pinterest, Google Images, ya koi bhi public image URL
+              </p>
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

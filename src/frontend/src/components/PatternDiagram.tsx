@@ -1,4 +1,4 @@
-import type { Measurements, PatternPiece } from "../backend.d";
+import type { Measurements, PatternPiece } from "../legacy-types";
 
 interface PatternDiagramProps {
   piece: PatternPiece;

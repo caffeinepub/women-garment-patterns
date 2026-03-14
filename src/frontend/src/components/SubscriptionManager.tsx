@@ -30,8 +30,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Plus, RefreshCw, Trash2, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { BillingCycle, SubscriberStatus } from "../backend.d";
-import type { Subscriber, SubscriptionPlan } from "../backend.d";
 import {
   useCreateSubscriber,
   useCreateSubscriptionPlan,
@@ -42,6 +40,8 @@ import {
   useUpdateSubscriberStatus,
   useUpdateSubscriptionPlan,
 } from "../hooks/useQueries";
+import { BillingCycle, SubscriberStatus } from "../legacy-types";
+import type { Subscriber, SubscriptionPlan } from "../legacy-types";
 
 const BILLING_LABELS: Record<BillingCycle, string> = {
   [BillingCycle.Monthly]: "Monthly",
